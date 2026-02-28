@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Teacher Login</title>
+
+<style>
+body{
+margin:0;
+font-family:Arial;
+background:#162539;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+}
+.card{
+background:#fff;
+padding:30px;
+width:300px;
+border-radius:8px;
+text-align:center;
+}
+input{
+width:100%;
+padding:10px;
+margin:8px 0;
+border:1px solid #ccc;
+}
+button{
+width:100%;
+padding:10px;
+background:#0b3c5d;
+color:#fff;
+border:none;
+cursor:pointer;
+}
+button:hover{background:#145a86}
+.error{color:red}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+<h2>Teacher Login</h2>
+
+<input id="username" placeholder="Username">
+<input id="password" type="password" placeholder="Password">
+
+<button onclick="login()">Login</button>
+
+<p id="error" class="error"></p>
+</div>
+
+<script>
+
+function login(){
+
+// CHANGE THESE TO YOUR OWN
+const correctUsername = "admin";
+const correctPassword = "CHO148";
+
+if(username.value === correctUsername && password.value === correctPassword){
+
+localStorage.setItem("teacherLoggedIn","yes");
+window.location.href = "teachers.html";
+
+}else{
+error.innerText = "Invalid Username or Password";
+}
+
+}
+
+</script>
+
+</body>
+</html>
