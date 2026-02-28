@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Crescent Heights Oyo – Teachers Portal</title>
+
+<style>
+body{
+margin:0;
+font-family:"Segoe UI",Arial,sans-serif;
+background:#162539 url('A_digital_graphic_design_features_the_Crescent_Hei.png') no-repeat center center;
+background-size:cover;
+}
+.header{
+background:#0b3c5d;
+color:#fff;
+padding:15px 25px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+.wrapper{display:flex}
+.sidebar{
+width:240px;
+background:#082c44;
+min-height:100vh;
+color:#fff;
+}
+.sidebar h3{
+text-align:center;
+padding:20px;
+border-bottom:1px solid rgba(255,255,255,.2);
+}
+.sidebar a{
+display:block;
+padding:14px 20px;
+color:#fff;
+cursor:pointer;
+border-bottom:1px solid rgba(255,255,255,.08);
+}
+.sidebar a:hover{background:#0b3c5d}
+.content{flex:1;padding:25px}
+.card{
+background:#fff;
+padding:20px;
+margin-bottom:25px;
+border-radius:6px;
+box-shadow:0 2px 6px rgba(0,0,0,.1);
+}
+input,button{
+width:100%;
+padding:10px;
+margin:6px 0;
+border:1px solid #ccc;
+border-radius:4px;
+}
+button{
+background:#0b3c5d;
+color:#fff;
+border:none;
+cursor:pointer;
+}
+button:hover{background:#145a86}
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:10px;
+}
+th,td{
+border:1px solid #ccc;
+padding:8px;
+text-align:center;
+}
+th{background:#0b3c5d;color:#fff}
+.hidden{display:none}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+<h2>Crescent Heights Oyo – Teachers Portal</h2>
+<button onclick="logout()">Logout</button>
+</div>
+
+<div class="wrapper">
+
+<div class="sidebar">
+<h3>Teacher Menu</h3>
+<a onclick="show('create')">Create Student</a>
+<a onclick="show('manage')">Manage Students</a>
+<a onclick="show('results')">Upload Results</a>
+</div>
+
+<div class="content">
+
+<div id="create" class="card">
+<h3>Create Student</h3>
+<input id="cName" placeholder="Student Name">
+<input id="cClass" placeholder="Class">
+<input type="file" id="cPassport" accept="image/*">
+<button onclick="createStudent()">Create Student</button>
+<p id="createdMatric"></p>
+</div>
+
+<div id="manage" class="card hidden">
+<h3>Manage Students</h3>
+<table id="studentTable"></table>
+</div>
+
+<div id="results" class="card hidden">
+<h3>Upload Results</h3>
+<input id="rMatric" placeholder="Matric Number">
+<input id="subject" placeholder="Subject">
+<input id="score" type="number" placeholder="Score">
+<button onclick="addResult()">Add Result</button>
+</div>
+
+</div>
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+/* ✅ CORRECT STORAGE BUCKET */
+const firebaseConfig = {
+  apiKey: "AIzaSyDyGAAiybGdSQZvsJnzK46fUtCMmcVwhP0",
+  authDomain: "crescent-heights-oyo.firebaseapp.com",
+  projectId: "crescent-heights-oyo",
+  storageBucket: "crescent-heights-oyo.appspot.com",
+  messagingSenderId: "1067062273531",
+  appId: "1:1067062273531:web:c90a74569e8fb2d18c175e"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const storage = getStorage(app);
+const auth = getAuth(app);
+
+/* 🔐 AUTO LOGIN TEACHER */
+async function autoLogin(){
+try{
+await signInWithEmailAndPassword(
+auth,
+"teacher@crescent.com",
+"12345678"
+);
+}catch(e){
+console.log("Login error:",e.message);
+}
+}
+
+autoLogin();
+
+onAuthStateChanged(auth,(user)=>{
+if(user){
+console.log("Teacher logged in");
+}else{
+alert("Authentication required");
+}
+});
+
+window.show=function(id){
+document.querySelectorAll('.card').forEach(c=>c.classList.add('hidden'));
+document.getElementById(id).classList.remove('hidden');
+if(id==="manage") loadStudents();
+}
+
+function generateMatric(){
+return "CHO"+Date.now().toString().slice(-6);
+}
+
+window.createStudent = async function(){
+
+if(!cName.value || !cClass.value || !cPassport.files[0]){
+alert("Fill all fields");
+return;
+}
+
+const matric = generateMatric();
+
+const storageRef = ref(storage,"passports/"+matric);
+await uploadBytes(storageRef,cPassport.files[0]);
+const passportURL = await getDownloadURL(storageRef);
+
+await addDoc(collection(db,"students"),{
+matric,
+name:cName.value,
+class:cClass.value,
+term:"First Term",
+session:"2025/2026",
+passport:passportURL,
+results:[]
+});
+
+createdMatric.innerHTML="Matric: <b>"+matric+"</b>";
+alert("Student Created Successfully");
+}
+
+async function loadStudents(){
+studentTable.innerHTML="<tr><th>Matric</th><th>Name</th><th>Class</th></tr>";
+const snapshot = await getDocs(collection(db,"students"));
+snapshot.forEach(docSnap=>{
+let s=docSnap.data();
+studentTable.innerHTML+=`
+<tr>
+<td>${s.matric}</td>
+<td>${s.name}</td>
+<td>${s.class}</td>
+</tr>`;
+});
+}
+
+window.addResult = async function(){
+
+const q = query(collection(db,"students"), where("matric","==",rMatric.value));
+const snapshot = await getDocs(q);
+
+snapshot.forEach(async docSnap=>{
+let data = docSnap.data();
+
+data.results.push({
+subject:subject.value,
+score:Number(score.value)
+});
+
+await updateDoc(doc(db,"students",docSnap.id),{
+results:data.results
+});
+
+alert("Result Uploaded Successfully");
+});
+}
+
+window.logout=function(){
+auth.signOut();
+location.reload();
+}
+
+</script>
+
+</body>
+</html>

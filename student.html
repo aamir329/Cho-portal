@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Crescent Heights Oyo – Student Portal</title>
+
+<style>
+body{
+font-family:Arial,sans-serif;
+background:#162539;
+color:#fff;
+text-align:center;
+padding:30px;
+}
+
+.container{
+background:#fff;
+color:#000;
+padding:25px;
+border-radius:8px;
+max-width:600px;
+margin:auto;
+}
+
+input,button{
+width:100%;
+padding:10px;
+margin:8px 0;
+border-radius:4px;
+border:1px solid #ccc;
+}
+
+button{
+background:#0b3c5d;
+color:#fff;
+border:none;
+cursor:pointer;
+}
+
+button:hover{
+background:#145a86;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:15px;
+}
+
+th,td{
+border:1px solid #ccc;
+padding:8px;
+text-align:center;
+}
+
+th{
+background:#0b3c5d;
+color:#fff;
+}
+
+img{
+width:120px;
+border-radius:6px;
+margin:10px 0;
+}
+</style>
+</head>
+
+<body>
+
+<h2>Crescent Heights Oyo – Student Portal</h2>
+
+<div class="container">
+
+<input id="matricInput" placeholder="Enter Matric Number">
+<button onclick="checkResult()">Check Result</button>
+
+<div id="resultArea" style="display:none;">
+
+<h3 id="studentName"></h3>
+<p id="studentClass"></p>
+<p id="studentSession"></p>
+
+<img id="studentPassport">
+
+<table id="resultTable"></table>
+
+</div>
+
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+/* SAME FIREBASE CONFIG */
+const firebaseConfig = {
+  apiKey: "AIzaSyDyGAAiybGdSQZvsJnzK46fUtCMmcVwhP0",
+  authDomain: "crescent-heights-oyo.firebaseapp.com",
+  projectId: "crescent-heights-oyo",
+  storageBucket: "crescent-heights-oyo.appspot.com",
+  messagingSenderId: "1067062273531",
+  appId: "1:1067062273531:web:c90a74569e8fb2d18c175e"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+window.checkResult = async function(){
+
+const matric = matricInput.value.trim();
+
+if(!matric){
+alert("Enter matric number");
+return;
+}
+
+const q = query(collection(db,"students"), where("matric","==",matric));
+const snapshot = await getDocs(q);
+
+if(snapshot.empty){
+alert("Student not found");
+return;
+}
+
+snapshot.forEach(docSnap=>{
+const s = docSnap.data();
+
+studentName.innerText = s.name;
+studentClass.innerText = "Class: "+s.class;
+studentSession.innerText = s.term+" | "+s.session;
+
+studentPassport.src = s.passport;
+
+resultTable.innerHTML="<tr><th>Subject</th><th>Score</th></tr>";
+
+s.results.forEach(r=>{
+resultTable.innerHTML+=`
+<tr>
+<td>${r.subject}</td>
+<td>${r.score}</td>
+</tr>
+`;
+});
+
+resultArea.style.display="block";
+});
+
+}
+
+</script>
+
+</body>
+</html>
