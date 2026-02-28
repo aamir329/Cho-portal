@@ -199,7 +199,7 @@ if(localStorage.getItem("teacherLoggedIn") !== "yes"){
       <h3>Add Result</h3>
       <input id="rMatric" placeholder="Matric Number">
       <input id="rSubject" placeholder="Subject">
-      <input id="rScore" type="number" placeholder="Score">
+      <input type="number" id="rScore" placeholder="Score">
       <select id="rTerm">
         <option>First Term</option>
         <option>Second Term</option>
@@ -237,7 +237,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyDyGAAiybGdSQZvsJnzK46fUtCMmcVwhP0",
   authDomain: "crescent-heights-oyo.firebaseapp.com",
   projectId: "crescent-heights-oyo",
-  storageBucket: "crescent-heights-oyo.firebasestorage.app",
+  storageBucket: "crescent-heights-oyo.appspot.com", // <-- fixed
   messagingSenderId: "1067062273531",
   appId: "1:1067062273531:web:c90a74569e8fb2d18c175e"
 };
@@ -261,24 +261,31 @@ window.createStudent = async () => {
   if(!cName.value || !cClass.value || !cPassport.files[0])
     return alert("All fields required");
 
-  const matric = "CHO" + Date.now().toString().slice(-6);
-  const file = cPassport.files[0];
-  const storageRef = ref(storage,"passports/"+matric);
-  await uploadBytes(storageRef,file);
-  const imageURL = await getDownloadURL(storageRef);
+  try {
+    const matric = "CHO" + Date.now().toString().slice(-6);
+    const file = cPassport.files[0];
+    const storageRef = ref(storage,"passports/"+matric);
 
-  await addDoc(collection(db,"students"),{
-    matric,
-    name:cName.value,
-    class:cClass.value,
-    passport:imageURL,
-    results:[],
-    lockedTerm:null
-  });
+    await uploadBytes(storageRef,file);
+    const imageURL = await getDownloadURL(storageRef);
 
-  createdMatric.innerHTML = "Matric: <b>"+matric+"</b>";
-  cName.value=""; cClass.value=""; cPassport.value="";
-  loadDashboard();
+    await addDoc(collection(db,"students"),{
+      matric,
+      name:cName.value,
+      class:cClass.value,
+      passport:imageURL,
+      results:[],
+      lockedTerm:null
+    });
+
+    createdMatric.innerHTML = "Matric: <b>"+matric+"</b>";
+    cName.value=""; cClass.value=""; cPassport.value="";
+    loadDashboard();
+
+  } catch(err) {
+    console.error(err);
+    alert("Error creating student: " + err.message);
+  }
 }
 
 // Add Result
@@ -337,7 +344,7 @@ function calculateAverage(results){
   return (results.reduce((a,b)=>a+b.score,0)/results.length).toFixed(1);
 }
 
-// Render student table with View button
+// Render student table
 function renderTable(data){
   studentTable.innerHTML="<tr><th>Photo</th><th>Matric</th><th>Name</th><th>Class</th><th>Avg</th><th>Actions</th></tr>";
   data.forEach(s=>{
@@ -357,7 +364,7 @@ function renderTable(data){
   });
 }
 
-// View student profile in modal with term lock warning
+// View profile
 window.viewProfile = async (id) => {
   const s = allStudents.find(st=>st.id===id);
   if(!s) return alert("Student not found");
@@ -384,7 +391,7 @@ window.viewProfile = async (id) => {
   profileModal.style.display = "block";
 }
 
-// Download results as CSV
+// Download CSV
 window.downloadResults = () => {
   if(!currentStudent) return;
   if(!currentStudent.results.length) return alert("No results to download");
