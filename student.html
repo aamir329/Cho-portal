@@ -79,9 +79,9 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
 import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
-apiKey: "AIzaSyDyGAAiybGdSQZvsJnzK46fUtCMmcVwhP0",
-authDomain: "crescent-heights-oyo.firebaseapp.com",
-projectId: "crescent-heights-oyo",
+  apiKey: "AIzaSyDyGAAiybGdSQZvsJnzK46fUtCMmcVwhP0",
+  authDomain: "crescent-heights-oyo.firebaseapp.com",
+  projectId: "crescent-heights-oyo",
 };
 
 const app = initializeApp(firebaseConfig);
@@ -90,112 +90,127 @@ const db = getFirestore(app);
 let currentStudent=null;
 
 window.checkResult = async function(){
+  const matric = matricInput.value.trim();
+  if(!matric) return alert("Enter matric number");
 
-const matric = matricInput.value.trim();
-if(!matric) return alert("Enter matric number");
+  const q = query(collection(db,"students"), where("matric","==",matric));
+  const snapshot = await getDocs(q);
 
-const q = query(collection(db,"students"), where("matric","==",matric));
-const snapshot = await getDocs(q);
+  if(snapshot.empty) return alert("Student not found");
 
-if(snapshot.empty) return alert("Student not found");
+  snapshot.forEach(docSnap=>{
+    const s = docSnap.data();
+    currentStudent = s;
 
-snapshot.forEach(docSnap=>{
-const s = docSnap.data();
-currentStudent = s;
+    studentName.innerText = s.name;
+    studentClass.innerText = "Class: "+s.class;
+    studentSession.innerText = s.term+" | "+s.session;
+    studentPassport.src = s.passport;
 
-studentName.innerText = s.name;
-studentClass.innerText = "Class: "+s.class;
-studentSession.innerText = s.term+" | "+s.session;
-studentPassport.src = s.passport;
+    resultTable.innerHTML="<tr><th>Subject</th><th>Score</th></tr>";
+    s.results.forEach(r=>{
+      resultTable.innerHTML+=`
+      <tr>
+        <td>${r.subject}</td>
+        <td>${r.score}</td>
+      </tr>`;
+    });
 
-resultTable.innerHTML="<tr><th>Subject</th><th>Score</th></tr>";
-
-s.results.forEach(r=>{
-resultTable.innerHTML+=`
-<tr>
-<td>${r.subject}</td>
-<td>${r.score}</td>
-</tr>`;
-});
-
-resultArea.style.display="block";
-});
+    resultArea.style.display="block";
+  });
 }
 
 function calculateAverage(results){
-if(!results.length) return 0;
-return (results.reduce((a,b)=>a+b.score,0)/results.length).toFixed(1);
+  if(!results.length) return 0;
+  return (results.reduce((a,b)=>a+b.score,0)/results.length).toFixed(1);
 }
 
 function grade(avg){
-if(avg>=70) return "A";
-if(avg>=60) return "B";
-if(avg>=50) return "C";
-if(avg>=45) return "D";
-return "F";
+  if(avg>=70) return "A";
+  if(avg>=60) return "B";
+  if(avg>=50) return "C";
+  if(avg>=45) return "D";
+  return "F";
 }
 
 function remark(avg){
-if(avg>=70) return "Excellent";
-if(avg>=60) return "Very Good";
-if(avg>=50) return "Good";
-if(avg>=45) return "Pass";
-return "Fail";
+  if(avg>=70) return "Excellent";
+  if(avg>=60) return "Very Good";
+  if(avg>=50) return "Good";
+  if(avg>=45) return "Pass";
+  return "Fail";
 }
 
 window.printPDF = async function(){
 
-if(!currentStudent) return alert("No result loaded");
+  if(!currentStudent) return alert("No result loaded");
 
-const { jsPDF } = window.jspdf;
-const doc = new jsPDF();
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
 
-let y = 20;
+  let y = 20;
 
-// SCHOOL HEADER
-doc.setFontSize(16);
-doc.text("Crescent Heights Oyo", 60, y);
-y+=10;
-doc.setFontSize(12);
-doc.text("Student Result Slip", 75, y);
-y+=15;
+  // ADD WATERMARK
+  try {
+    const watermarkImg = await fetch("A_digital_graphic_design_features_the_Crescent_Hei.png")
+      .then(res => res.blob())
+      .then(blob => new Promise(resolve => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.readAsDataURL(blob);
+      }));
 
-// STUDENT INFO
-doc.text("Name: "+currentStudent.name,20,y); y+=8;
-doc.text("Matric: "+currentStudent.matric,20,y); y+=8;
-doc.text("Class: "+currentStudent.class,20,y); y+=8;
-doc.text("Session: "+currentStudent.session,20,y); y+=15;
+    // Use semi-transparent watermark
+    doc.setGState(new doc.GState({ opacity: 0.1 }));
+    doc.addImage(watermarkImg, "PNG", 35, 80, 140, 140, undefined, "FAST");
+    doc.setGState(new doc.GState({ opacity: 1 }));
+  } catch(e){
+    console.log("Watermark not loaded", e);
+  }
 
-// PASSPORT
-try{
-const img = await fetch(currentStudent.passport)
-.then(res=>res.blob())
-.then(blob=>new Promise(resolve=>{
-const reader=new FileReader();
-reader.onload=()=>resolve(reader.result);
-reader.readAsDataURL(blob);
-}));
+  // SCHOOL HEADER
+  doc.setFontSize(16);
+  doc.text("Crescent Heights Oyo", 60, y);
+  y+=10;
+  doc.setFontSize(12);
+  doc.text("Student Result Slip", 75, y);
+  y+=15;
 
-doc.addImage(img,"JPEG",150,20,40,40);
-}catch(e){}
+  // STUDENT INFO
+  doc.text("Name: "+currentStudent.name,20,y); y+=8;
+  doc.text("Matric: "+currentStudent.matric,20,y); y+=8;
+  doc.text("Class: "+currentStudent.class,20,y); y+=8;
+  doc.text("Session: "+currentStudent.session,20,y); y+=15;
 
-// TABLE
-doc.text("Subjects & Scores:",20,y);
-y+=10;
+  // PASSPORT
+  try{
+    const img = await fetch(currentStudent.passport)
+      .then(res=>res.blob())
+      .then(blob=>new Promise(resolve=>{
+        const reader=new FileReader();
+        reader.onload=()=>resolve(reader.result);
+        reader.readAsDataURL(blob);
+      }));
+    doc.addImage(img,"JPEG",150,20,40,40);
+  }catch(e){}
 
-currentStudent.results.forEach(r=>{
-doc.text(r.subject+" - "+r.score,25,y);
-y+=8;
-});
+  // TABLE
+  doc.text("Subjects & Scores:",20,y);
+  y+=10;
 
-// AVERAGE + GRADE
-const avg = calculateAverage(currentStudent.results);
-y+=10;
-doc.text("Average: "+avg,20,y); y+=8;
-doc.text("Grade: "+grade(avg),20,y); y+=8;
-doc.text("Remark: "+remark(avg),20,y);
+  currentStudent.results.forEach(r=>{
+    doc.text(r.subject+" - "+r.score,25,y);
+    y+=8;
+  });
 
-doc.save(currentStudent.name+"_Result.pdf");
+  // AVERAGE + GRADE
+  const avg = calculateAverage(currentStudent.results);
+  y+=10;
+  doc.text("Average: "+avg,20,y); y+=8;
+  doc.text("Grade: "+grade(avg),20,y); y+=8;
+  doc.text("Remark: "+remark(avg),20,y);
+
+  doc.save(currentStudent.name+"_Result.pdf");
 
 }
 
