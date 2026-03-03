@@ -3,99 +3,36 @@
 <head>
 <meta charset="UTF-8">
 <title>Crescent Heights Oyo – Teachers Portal</title>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
-body{
-  margin:0;
-  font-family:"Segoe UI",Arial,sans-serif;
-  background:#162539;
-}
-.header{
-  background:#0b3c5d;
-  color:#fff;
-  padding:15px 25px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
+body{margin:0;font-family:"Segoe UI",Arial;background:#162539;}
+.header{background:#0b3c5d;color:#fff;padding:15px 25px;display:flex;justify-content:space-between;align-items:center;}
 .wrapper{display:flex}
-.sidebar{
-  width:240px;
-  background:#082c44;
-  min-height:100vh;
-  color:#fff;
-}
-.sidebar h3{
-  text-align:center;
-  padding:20px;
-  border-bottom:1px solid rgba(255,255,255,.2);
-}
-.sidebar a{
-  display:block;
-  padding:14px 20px;
-  color:#fff;
-  cursor:pointer;
-  border-bottom:1px solid rgba(255,255,255,.08);
-}
+.sidebar{width:240px;background:#082c44;min-height:100vh;color:#fff;}
+.sidebar h3{text-align:center;padding:20px;border-bottom:1px solid rgba(255,255,255,.2);}
+.sidebar a{display:block;padding:14px 20px;color:#fff;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.08);}
 .sidebar a:hover{background:#0b3c5d}
 .content{flex:1;padding:25px}
-.card{
-  background:#fff;
-  padding:20px;
-  margin-bottom:25px;
-  border-radius:6px;
-  box-shadow:0 2px 6px rgba(0,0,0,.1);
-}
-input,select,button{
-  padding:10px;
-  margin:5px 0;
-  border:1px solid #ccc;
-  border-radius:4px;
-  width:100%;
-}
-button{
-  background:#0b3c5d;
-  color:#fff;
-  border:none;
-  cursor:pointer;
-}
+.card{background:#fff;padding:20px;margin-bottom:25px;border-radius:6px;box-shadow:0 2px 6px rgba(0,0,0,.1);}
+input,select,button{padding:10px;margin:5px 0;border:1px solid #ccc;border-radius:4px;width:100%;}
+button{background:#0b3c5d;color:#fff;border:none;cursor:pointer;}
 button:hover{background:#145a86}
-table{
-  width:100%;
-  border-collapse:collapse;
-  margin-top:10px;
-}
-th,td{
-  border:1px solid #ccc;
-  padding:8px;
-  text-align:center;
-}
+table{width:100%;border-collapse:collapse;margin-top:10px;}
+th,td{border:1px solid #ccc;padding:8px;text-align:center;}
 th{background:#0b3c5d;color:#fff}
 .hidden{display:none}
-.stat-box{
-  display:inline-block;
-  width:23%;
-  background:#0b3c5d;
-  color:white;
-  padding:15px;
-  margin:5px;
-  border-radius:6px;
-  text-align:center;
-}
-.passport{
-  width:40px;
-  height:40px;
-  border-radius:50%;
-  object-fit:cover;
-}
+.passport{width:40px;height:40px;border-radius:50%;object-fit:cover;}
+.stat-box{display:inline-block;width:23%;background:#0b3c5d;color:white;padding:15px;margin:5px;border-radius:6px;text-align:center;}
 </style>
 </head>
 
 <body>
 
 <script>
-if(localStorage.getItem("teacherLoggedIn") !== "yes"){
+if(localStorage.getItem("teacherLoggedIn")!=="yes"){
   window.location.href="login.html";
 }
 </script>
@@ -106,7 +43,6 @@ if(localStorage.getItem("teacherLoggedIn") !== "yes"){
 </div>
 
 <div class="wrapper">
-
 <div class="sidebar">
   <h3>Teacher Menu</h3>
   <a onclick="show('dashboard')">Dashboard</a>
@@ -118,42 +54,46 @@ if(localStorage.getItem("teacherLoggedIn") !== "yes"){
 <div class="content">
 
 <div id="dashboard" class="card">
-  <h3>Dashboard Overview</h3>
-  <div class="stat-box"><h2 id="totalStudents">0</h2><p>Total Students</p></div>
-  <div class="stat-box"><h2 id="totalClasses">0</h2><p>Total Classes</p></div>
-  <div class="stat-box"><h2 id="totalResults">0</h2><p>Total Results</p></div>
-  <div class="stat-box"><h2>2025/2026</h2><p>Session</p></div>
-
-  <h3>📊 Performance Chart</h3>
-  <canvas id="performanceChart"></canvas>
+<h3>Dashboard</h3>
+<div class="stat-box"><h2 id="totalStudents">0</h2><p>Total Students</p></div>
+<div class="stat-box"><h2 id="currentSession">2025/2026</h2><p>Session</p></div>
+<button onclick="generateNextSession()">Generate Next Session</button>
+<canvas id="performanceChart"></canvas>
 </div>
 
 <div id="manage" class="card hidden">
-  <h3>Manage Students</h3>
-  <input id="searchBox" placeholder="Search student">
-  <table id="studentTable"></table>
+<h3>Manage Students</h3>
+<input id="searchBox" placeholder="🔥 Search Student..." onkeyup="searchStudent()">
+<table id="studentTable"></table>
 </div>
 
 <div id="create" class="card hidden">
-  <h3>Create Student</h3>
-  <input id="cName" placeholder="Student Name">
-  <input id="cClass" placeholder="Class (JSS1)">
-  <input type="file" id="cPassport" accept="image/*">
-  <button onclick="createStudent()">Create Student</button>
-  <p id="createdMatric"></p>
+<h3>Create Student</h3>
+<input id="cName" placeholder="Student Name">
+<select id="cClass">
+<option>JSS1</option>
+<option>JSS2</option>
+<option>JSS3</option>
+<option>SS1</option>
+<option>SS2</option>
+<option>SS3</option>
+</select>
+<input type="file" id="cPassport" accept="image/*">
+<button onclick="createStudent()">Create Student</button>
+<p id="createdMatric"></p>
 </div>
 
 <div id="results" class="card hidden">
-  <h3>Add Result</h3>
-  <input id="rMatric" placeholder="Matric Number">
-  <input id="rSubject" placeholder="Subject">
-  <input id="rScore" type="number" placeholder="Score">
-  <select id="rTerm">
-    <option>First Term</option>
-    <option>Second Term</option>
-    <option>Third Term</option>
-  </select>
-  <button onclick="addResult()">Add Result</button>
+<h3>Add Result</h3>
+<input id="rMatric" placeholder="Matric Number">
+<input id="rSubject" placeholder="Subject">
+<input id="rScore" type="number" placeholder="Score">
+<select id="rTerm">
+<option>First Term</option>
+<option>Second Term</option>
+<option>Third Term</option>
+</select>
+<button onclick="addResult()">Add Result</button>
 </div>
 
 </div>
@@ -164,163 +104,185 @@ if(localStorage.getItem("teacherLoggedIn") !== "yes"){
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDyGAAiybGdSQZvsJnzK46fUtCMmcVwhP0",
-  authDomain: "crescent-heights-oyo.firebaseapp.com",
-  projectId: "crescent-heights-oyo",
+const firebaseConfig={
+apiKey:"AIzaSyDyGAAiybGdSQZvsJnzK46fUtCMmcVwhP0",
+authDomain:"crescent-heights-oyo.firebaseapp.com",
+projectId:"crescent-heights-oyo",
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+const app=initializeApp(firebaseConfig);
+const db=getFirestore(app);
 
-let allStudents = [];
-let chartInstance = null;
+let allStudents=[];
+let chartInstance=null;
 
-window.show = id => {
-  document.querySelectorAll('.card').forEach(c=>c.classList.add('hidden'));
-  document.getElementById(id).classList.remove('hidden');
+window.show=id=>{
+document.querySelectorAll('.card').forEach(c=>c.classList.add('hidden'));
+document.getElementById(id).classList.remove('hidden');
 };
 
-window.createStudent = async () => {
-
-  if(!cName.value || !cClass.value || !cPassport.files[0])
-    return alert("All fields required");
-
-  const matric = "CHO" + Date.now().toString().slice(-6);
-  const file = cPassport.files[0];
-
-  // Upload to Cloudinary
-  const formData = new FormData();
-  formData.append("file", file);
-  formData.append("upload_preset", "cho students upload"); // make sure this exists in Cloudinary
-
-  const response = await fetch(
-    "https://api.cloudinary.com/v1_1/dbl5rshwi/image/upload",
-    { method: "POST", body: formData }
-  );
-
-  const data = await response.json();
-  if(data.error) return alert("Upload failed: " + data.error.message);
-
-  const imageURL = data.secure_url; // <- FIX: use secure_url, not public_id
-
-  await addDoc(collection(db,"students"),{
-    matric,
-    name:cName.value,
-    class:cClass.value,
-    passport:imageURL,
-    results:[]
-  });
-
-  createdMatric.innerHTML = "Matric: <b>"+matric+"</b>";
-  cName.value=""; 
-  cClass.value=""; 
-  cPassport.value="";
-  loadDashboard();
-};
-
-window.addResult = async () => {
-
-  if(!rMatric.value || !rSubject.value || !rScore.value)
-    return alert("All fields required");
-
-  const qSnap = await getDocs(
-    query(collection(db,"students"), where("matric","==",rMatric.value))
-  );
-
-  if(qSnap.empty) return alert("Student not found");
-
-  qSnap.forEach(async d => {
-    const data = d.data();
-    if(!data.results) data.results = [];
-
-    data.results.push({
-      term: rTerm.value,
-      subject: rSubject.value,
-      score: Number(rScore.value)
-    });
-
-    await updateDoc(doc(db,"students",d.id), { results: data.results });
-  });
-
-  alert("Result Added");
-  rMatric.value=""; 
-  rSubject.value=""; 
-  rScore.value="";
-  loadDashboard();
-};
-
-async function loadDashboard(){
-  const snap = await getDocs(collection(db,"students"));
-  allStudents = [];
-  let totalRes = 0;
-  let classes = new Set();
-
-  snap.forEach(d => {
-    const s = d.data(); 
-    s.id = d.id;
-    if(!s.results) s.results = [];
-    allStudents.push(s);
-    classes.add(s.class);
-    totalRes += s.results.length;
-  });
-
-  totalStudents.innerText = allStudents.length;
-  totalClasses.innerText = classes.size;
-  totalResults.innerText = totalRes;
-
-  renderTable(allStudents);
-  renderChart();
+function grade(score){
+if(score>=70) return "A";
+if(score>=60) return "B";
+if(score>=50) return "C";
+if(score>=45) return "D";
+return "F";
 }
+
+function remark(score){
+if(score>=70) return "Excellent";
+if(score>=60) return "Very Good";
+if(score>=50) return "Good";
+if(score>=45) return "Pass";
+return "Fail";
+}
+
+window.createStudent=async()=>{
+if(!cName.value||!cPassport.files[0]) return alert("All fields required");
+
+const matric="CHO"+Date.now().toString().slice(-6);
+const file=cPassport.files[0];
+
+const fd=new FormData();
+fd.append("file",file);
+fd.append("upload_preset","cho_students_upload");
+
+const res=await fetch("https://api.cloudinary.com/v1_1/dbl5rshwi/image/upload",{method:"POST",body:fd});
+const data=await res.json();
+if(data.error) return alert(data.error.message);
+
+await addDoc(collection(db,"students"),{
+matric,
+name:cName.value,
+class:cClass.value,
+passport:data.secure_url,
+results:[]
+});
+
+createdMatric.innerHTML="Matric: <b>"+matric+"</b>";
+cName.value="";cPassport.value="";
+loadDashboard();
+};
+
+window.addResult=async()=>{
+const snap=await getDocs(query(collection(db,"students"),where("matric","==",rMatric.value)));
+if(snap.empty) return alert("Student not found");
+
+snap.forEach(async d=>{
+const s=d.data();
+if(!s.results) s.results=[];
+s.results.push({subject:rSubject.value,score:Number(rScore.value),term:rTerm.value});
+await updateDoc(doc(db,"students",d.id),{results:s.results});
+});
+
+alert("Result Added");
+loadDashboard();
+};
 
 function calculateAverage(results){
-  if(!results.length) return 0;
-  return (results.reduce((a,b)=>a+b.score,0)/results.length).toFixed(1);
+if(!results.length) return 0;
+return (results.reduce((a,b)=>a+b.score,0)/results.length).toFixed(1);
 }
+
+function promoteClass(cls){
+if(cls==="JSS1") return "JSS2";
+if(cls==="JSS2") return "JSS3";
+if(cls==="JSS3") return "SS1";
+if(cls==="SS1") return "SS2";
+if(cls==="SS2") return "SS3";
+return "Graduated";
+}
+
+window.generateNextSession=async()=>{
+const snap=await getDocs(collection(db,"students"));
+snap.forEach(async d=>{
+const s=d.data();
+const newClass=promoteClass(s.class);
+await updateDoc(doc(db,"students",d.id),{class:newClass});
+});
+alert("All students promoted successfully");
+loadDashboard();
+};
+
+window.searchStudent=()=>{
+const value=searchBox.value.toLowerCase();
+const filtered=allStudents.filter(s=>s.name.toLowerCase().includes(value)||s.matric.toLowerCase().includes(value));
+renderTable(filtered);
+};
 
 function renderTable(data){
-  studentTable.innerHTML="<tr><th>Photo</th><th>Matric</th><th>Name</th><th>Class</th><th>Avg</th><th>Actions</th></tr>";
-  data.forEach(s=>{
-    studentTable.innerHTML += `
-      <tr>
-        <td><img src="${s.passport}" class="passport"></td>
-        <td>${s.matric}</td>
-        <td>${s.name}</td>
-        <td>${s.class}</td>
-        <td>${calculateAverage(s.results)}</td>
-        <td>
-          <button onclick="deleteStudent('${s.id}')">Delete</button>
-        </td>
-      </tr>
-    `;
-  });
+studentTable.innerHTML="<tr><th>Photo</th><th>Matric</th><th>Name</th><th>Class</th><th>Avg</th><th>Grade</th><th>Remark</th><th>Actions</th></tr>";
+data.forEach(s=>{
+const avg=calculateAverage(s.results);
+studentTable.innerHTML+=`
+<tr>
+<td><img src="${s.passport}" class="passport"></td>
+<td>${s.matric}</td>
+<td>${s.name}</td>
+<td>${s.class}</td>
+<td>${avg}</td>
+<td>${grade(avg)}</td>
+<td>${remark(avg)}</td>
+<td>
+<button onclick="printResult('${s.matric}')">PDF</button>
+${localStorage.getItem("isAdmin")==="yes"?`<button onclick="deleteStudent('${s.id}')">Delete</button>`:""}
+</td>
+</tr>`;
+});
 }
 
-window.deleteStudent = async (id) => {
-  if(confirm("Delete student?")){
-    await deleteDoc(doc(db,"students",id));
-    loadDashboard();
-  }
+window.printResult=(matric)=>{
+const student=allStudents.find(s=>s.matric===matric);
+const { jsPDF }=window.jspdf;
+const doc=new jsPDF();
+
+doc.addImage("https://res.cloudinary.com/dbl5rshwi/image/upload/v1/sample.jpg","JPEG",80,10,50,30);
+doc.text("Crescent Heights Oyo",60,50);
+doc.text("Student Result Slip",70,60);
+
+doc.text("Name: "+student.name,20,80);
+doc.text("Class: "+student.class,20,90);
+doc.text("Matric: "+student.matric,20,100);
+
+let y=120;
+student.results.forEach(r=>{
+doc.text(r.subject+" - "+r.score,20,y);
+y+=10;
+});
+
+doc.save(student.name+"_Result.pdf");
+};
+
+window.deleteStudent=async(id)=>{
+if(localStorage.getItem("isAdmin")!=="yes") return alert("Admin only");
+if(confirm("Delete student?")){
+await deleteDoc(doc(db,"students",id));
+loadDashboard();
+}
 };
 
 function renderChart(){
-  const labels = allStudents.map(s=>s.name);
-  const averages = allStudents.map(s=>calculateAverage(s.results));
-  if(chartInstance) chartInstance.destroy();
-  chartInstance = new Chart(performanceChart,{
-    type:'bar',
-    data:{ labels, datasets:[{ label:'Average Score', data:averages }] }
-  });
+const labels=allStudents.map(s=>s.name);
+const averages=allStudents.map(s=>calculateAverage(s.results));
+if(chartInstance) chartInstance.destroy();
+chartInstance=new Chart(performanceChart,{type:'bar',data:{labels,datasets:[{label:'Average',data:averages}]}})
 }
 
-window.logout = () => {
-  localStorage.removeItem("teacherLoggedIn");
-  window.location.href="login.html";
+async function loadDashboard(){
+const snap=await getDocs(collection(db,"students"));
+allStudents=[];
+snap.forEach(d=>{let s=d.data();s.id=d.id;if(!s.results)s.results=[];allStudents.push(s);});
+totalStudents.innerText=allStudents.length;
+renderTable(allStudents);
+renderChart();
+}
+
+window.logout=()=>{
+localStorage.removeItem("teacherLoggedIn");
+window.location.href="login.html";
 };
 
 loadDashboard();
-
 </script>
-
 </body>
 </html>
