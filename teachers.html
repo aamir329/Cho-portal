@@ -80,6 +80,11 @@ if(localStorage.getItem("teacherLoggedIn")!=="yes"){
 <input id="rMatric" placeholder="Matric Number">
 <input id="rSubject" placeholder="Subject">
 <input id="rScore" type="number" placeholder="Score">
+<select id="rTerm">
+<option>First Term</option>
+<option>Second Term</option>
+<option>Third Term</option>
+</select>
 <button onclick="addResult()">Add Result</button>
 </div>
 
@@ -158,11 +163,13 @@ loadDashboard();
 };
 
 window.addResult=async()=>{
+const term=rTerm.value; // get selected term
 const snap=await getDocs(query(collection(db,"students"),where("matric","==",rMatric.value)));
 if(snap.empty) return alert("Student not found");
 snap.forEach(async d=>{
 const s=d.data();
-s.results.push({subject:rSubject.value,score:Number(rScore.value)});
+if(!s.results) s.results=[];
+s.results.push({subject:rSubject.value,score:Number(rScore.value),term});
 await updateDoc(doc(db,"students",d.id),{results:s.results});
 });
 alert("Result Added");
