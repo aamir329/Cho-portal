@@ -6,67 +6,64 @@
     <title>Crescent Heights Admin</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root { --primary: #0b3c5d; --secondary: #162539; --accent: #27ae60; --danger: #e74c3c; --card-bg: #ffffff; }
-        body { font-family: -apple-system, sans-serif; background-color: var(--secondary); color: #333; line-height: 1.5; }
+        :root { --primary: #0b3c5d; --secondary: #162539; --accent: #27ae60; --danger: #e74c3c; --warning: #f39c12; --card-bg: #ffffff; }
+        body { font-family: -apple-system, sans-serif; background-color: var(--secondary); color: #333; line-height: 1.5; padding-bottom: 80px; }
 
         /* Top Nav */
         .top-nav { background: var(--primary); color: white; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
-        .top-nav h1 { font-size: 1rem; }
-
+        
         /* Bottom Nav */
         .bottom-tabs { position: fixed; bottom: 0; width: 100%; background: #fff; display: flex; border-top: 1px solid #ddd; z-index: 1000; }
         .tab-item { flex: 1; text-align: center; padding: 12px 5px; font-size: 0.75rem; color: #666; cursor: pointer; }
         .tab-item.active { color: var(--primary); font-weight: bold; border-top: 3px solid var(--primary); }
 
         /* Content */
-        .container { padding: 15px; padding-bottom: 80px; }
+        .container { padding: 15px; }
         .card { background: var(--card-bg); border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         .hidden { display: none !important; }
 
         /* Student Rows */
-        .student-row { display: flex; align-items: center; padding: 12px; background: #fff; margin-bottom: 10px; border-radius: 10px; gap: 15px; }
+        .student-row { background: #fff; margin-bottom: 10px; border-radius: 10px; overflow: hidden; border: 1px solid #eee; }
+        .student-main { display: flex; align-items: center; padding: 12px; gap: 15px; }
+        .student-actions { display: flex; border-top: 1px solid #eee; background: #fafafa; }
+        .action-btn { flex: 1; padding: 10px; text-align: center; font-size: 0.75rem; font-weight: bold; cursor: pointer; border-right: 1px solid #eee; }
+        .action-btn:last-child { border-right: none; }
+        
         .passport { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); }
         .student-info { flex: 1; }
 
         /* Subject Cards */
         .subject-card { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 12px; border-left: 5px solid var(--primary); position: relative; }
-        .remove-sub { position: absolute; top: 10px; right: 10px; color: var(--danger); font-weight: bold; font-size: 1.2rem; cursor: pointer; }
-        .input-row { display: flex; gap: 10px; margin-top: 10px; }
-        .input-group { flex: 1; }
-        .input-group label { display: block; font-size: 0.7rem; color: #666; }
+        .remove-sub { position: absolute; top: 10px; right: 10px; color: var(--danger); font-size: 1.2rem; cursor: pointer; }
         
-        input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 1rem; }
-        .btn { width: 100%; padding: 14px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 1rem; margin-top: 5px; }
+        .btn { width: 100%; padding: 14px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
         .btn-primary { background: var(--primary); color: white; }
         .btn-success { background: var(--accent); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
         .btn-add { background: #eee; color: #333; margin-bottom: 15px; border: 1px dashed #999; }
 
         /* Modal */
         .full-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 2000; overflow-y: auto; padding: 20px; }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #eee; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
     </style>
 </head>
 <body>
 
 <div class="top-nav">
-    <h1>CRESCENT HEIGHTS ADMIN</h1>
-    <button onclick="location.reload()" style="background:none; color:white; border:1px solid white; padding:2px 8px; border-radius:4px; font-size:0.7rem;">Refresh</button>
+    <h1 style="font-size: 1rem;">CRESCENT HEIGHTS ADMIN</h1>
+    <button onclick="location.reload()" style="background:none; color:white; border:1px solid white; padding:2px 8px; border-radius:4px; font-size:0.7rem;">Sync</button>
 </div>
 
 <div class="container">
     <div id="dashSec" class="card">
-        <h2 style="font-size: 1.2rem;">Teacher Dashboard</h2>
-        <div style="display: flex; gap: 10px; margin-top: 20px;">
-            <div style="flex:1; background: #eef2f5; padding: 15px; border-radius: 8px; text-align: center;">
-                <p style="font-size: 0.7rem;">STUDENTS</p>
-                <b id="countVal" style="font-size: 1.5rem; color: var(--primary);">0</b>
-            </div>
-        </div>
+        <h2>Dashboard</h2>
+        <p style="color: #666; font-size: 0.9rem;">Total Students: <b id="countVal">0</b></p>
     </div>
 
     <div id="listSec" class="hidden">
-        <input type="text" id="search" placeholder="Search students..." style="margin-bottom: 15px;" onkeyup="filter()">
-        <div id="studentListContainer"></div>
+        <input type="text" id="search" placeholder="Search by name..." onkeyup="filter()">
+        <div id="studentListContainer" style="margin-top: 15px;"></div>
     </div>
 
     <div id="regSec" class="card hidden">
@@ -80,30 +77,35 @@
 
 <div id="resultModal" class="full-modal hidden">
     <div class="modal-header">
-        <h3 id="mTitle">Edit Result</h3>
+        <h3 id="mTitle">Edit Student</h3>
         <button onclick="closeModal()" style="border:none; font-size:1.8rem; background:none;">&times;</button>
     </div>
 
-    <div style="display: flex; gap: 5px; margin-bottom: 15px;">
-        <select id="mTerm"><option>1st Term</option><option>2nd Term</option><option>3rd Term</option></select>
+    <div id="editProfileFields" class="card" style="background:#f0f4f8;">
+        <label style="font-size: 0.7rem;">Edit Name</label>
+        <input type="text" id="mName">
+        <label style="font-size: 0.7rem; margin-top:10px; display:block;">Change Class (Promote)</label>
         <select id="mClass"><option>JSS1</option><option>JSS2</option><option>JSS3</option><option>SS1</option><option>SS2</option><option>SS3</option></select>
     </div>
 
-    <button class="btn btn-add" onclick="addNewSubjectField()">➕ Add New Subject</button>
+    <div id="resultSection">
+        <h4 style="margin: 15px 0 5px;">Termly Results</h4>
+        <select id="mTerm" style="margin-bottom: 10px;"><option>1st Term</option><option>2nd Term</option><option>3rd Term</option></select>
+        <button class="btn btn-add" onclick="addNewSubjectField()">➕ Add Subject Score</button>
+        <div id="subjectInputs"></div>
 
-    <div id="subjectInputs">
+        <div class="card" style="border: 1px solid #ddd; margin-top: 20px;">
+            <h4>Remarks</h4>
+            <div style="display:flex; gap:10px;">
+                <input type="number" id="aPunct" placeholder="Punctuality (1-5)">
+                <input type="number" id="aNeat" placeholder="Neatness (1-5)">
+            </div>
+            <textarea id="aRemark" placeholder="General Teacher Remark..."></textarea>
         </div>
-
-    <div class="card" style="border: 1px solid #ddd;">
-        <h4>Affective Domain & Remarks</h4>
-        <div class="input-row">
-            <div class="input-group"><label>Punctuality</label><input type="number" id="aPunct"></div>
-            <div class="input-group"><label>Neatness</label><input type="number" id="aNeat"></div>
-        </div>
-        <textarea id="aRemark" placeholder="Teacher's Remark..." style="margin-top:10px; height:60px;"></textarea>
     </div>
 
-    <button class="btn btn-success" id="saveBtn" onclick="saveResult()">Save All Data</button>
+    <button class="btn btn-success" id="saveBtn" onclick="saveData()">Save All Changes</button>
+    <button class="btn btn-danger" style="margin-top:20px; opacity: 0.7;" onclick="deleteStudent()">Delete Student Profile</button>
 </div>
 
 <nav class="bottom-tabs">
@@ -114,7 +116,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyDyGAAiybGdSQZvsJnzK46fUtCMmcVwhP0",
@@ -140,66 +142,71 @@
 
     window.closeModal = () => document.getElementById('resultModal').classList.add('hidden');
 
-    // Add Blank Subject Card
     window.addNewSubjectField = (subName = "", ca = "", ex = "") => {
         const box = document.getElementById('subjectInputs');
         const div = document.createElement('div');
         div.className = "subject-card";
         div.innerHTML = `
             <span class="remove-sub" onclick="this.parentElement.remove()">&times;</span>
-            <input type="text" class="sub-name" placeholder="Subject Name" value="${subName}" style="font-weight:bold; border:none; background:transparent; padding:0; margin-bottom:5px;">
-            <div class="input-row">
-                <div class="input-group"><label>C.A</label><input type="number" class="ca-in" value="${ca}"></div>
-                <div class="input-group"><label>Exam</label><input type="number" class="ex-in" value="${ex}"></div>
-            </div>
-        `;
+            <input type="text" class="sub-name" placeholder="Subject Name" value="${subName}" style="font-weight:bold; border:none; background:transparent;">
+            <div style="display:flex; gap:10px; margin-top:5px;">
+                <input type="number" class="ca-in" placeholder="CA" value="${ca}">
+                <input type="number" class="ex-in" placeholder="Exam" value="${ex}">
+            </div>`;
         box.appendChild(div);
     };
 
-    window.openResults = (id) => {
+    window.openManager = (id) => {
         currentId = id;
         const s = students.find(x => x.id === id);
         document.getElementById('mTitle').innerText = s.name;
-        document.getElementById('resultModal').classList.remove('hidden');
-        document.getElementById('subjectInputs').innerHTML = ""; // Clear old fields
-        
-        // Auto-load current class/term
+        document.getElementById('mName').value = s.name;
         document.getElementById('mClass').value = s.class;
+        document.getElementById('resultModal').classList.remove('hidden');
+        document.getElementById('subjectInputs').innerHTML = ""; 
     };
 
-    window.saveResult = async () => {
+    window.saveData = async () => {
         const btn = document.getElementById('saveBtn');
-        btn.innerText = "Syncing..."; btn.disabled = true;
+        btn.innerText = "Processing..."; btn.disabled = true;
 
-        const cls = document.getElementById('mClass').value;
-        const trm = document.getElementById('mTerm').value;
-        const resObj = {
+        const newName = document.getElementById('mName').value;
+        const newClass = document.getElementById('mClass').value;
+        const term = document.getElementById('mTerm').value;
+
+        const resData = {
             remark: document.getElementById('aRemark').value,
             punctuality: document.getElementById('aPunct').value,
             neatness: document.getElementById('aNeat').value
         };
 
-        // Capture all custom subjects
         document.querySelectorAll('.subject-card').forEach(card => {
-            const name = card.querySelector('.sub-name').value;
+            const n = card.querySelector('.sub-name').value;
             const ca = card.querySelector('.ca-in').value;
             const ex = card.querySelector('.ex-in').value;
-            if(name) resObj[name] = { ca, ex };
+            if(n) resData[n] = { ca, ex };
         });
 
-        const docRef = doc(db, "students", currentId);
-        const snap = await getDoc(docRef);
+        const sRef = doc(db, "students", currentId);
+        const snap = await getDoc(sRef);
         const results = snap.data().results || {};
-        if(!results[cls]) results[cls] = {};
-        results[cls][trm] = resObj;
+        if(!results[newClass]) results[newClass] = {};
+        results[newClass][term] = resData;
 
-        await updateDoc(docRef, { results });
-        alert("Saved!");
-        closeModal();
-        btn.innerText = "Save All Data"; btn.disabled = false;
+        await updateDoc(sRef, { name: newName, class: newClass, results: results });
+        alert("Saved Successfully!");
+        closeModal(); load();
+        btn.innerText = "Save All Changes"; btn.disabled = false;
     };
 
-    // Boilerplate Load/Register
+    window.deleteStudent = async () => {
+        if(confirm("Permanently delete this student? This cannot be undone.")) {
+            await deleteDoc(doc(db, "students", currentId));
+            alert("Deleted.");
+            closeModal(); load();
+        }
+    };
+
     window.load = async () => {
         const snap = await getDocs(collection(db, "students"));
         students = [];
@@ -209,25 +216,38 @@
             const s = { id: d.id, ...d.data() };
             students.push(s);
             container.innerHTML += `
-                <div class="student-row" onclick="openResults('${s.id}')">
-                    <img src="${s.passport}" class="passport">
-                    <div class="student-info"><h4>${s.name}</h4><p>${s.class}</p></div>
+                <div class="student-row">
+                    <div class="student-main">
+                        <img src="${s.passport}" class="passport">
+                        <div class="student-info"><h4>${s.name}</h4><p>${s.class}</p></div>
+                    </div>
+                    <div class="student-actions">
+                        <div class="action-btn" onclick="openManager('${s.id}')" style="color:var(--primary)">✏️ EDIT / RESULT</div>
+                        <div class="action-btn" onclick="openManager('${s.id}')" style="color:var(--accent)">🔼 PROMOTE</div>
+                    </div>
                 </div>`;
         });
         document.getElementById('countVal').innerText = students.length;
     };
 
     window.register = async () => {
-        const name = document.getElementById('rName').value;
-        const cls = document.getElementById('rClass').value;
-        const file = document.getElementById('rFile').files[0];
-        if(!name || !file) return alert("Missing info");
-        const fd = new FormData(); fd.append("file", file); fd.append("upload_preset", "cho_students_upload");
+        const n = document.getElementById('rName').value;
+        const c = document.getElementById('rClass').value;
+        const f = document.getElementById('rFile').files[0];
+        if(!n || !f) return alert("Fill all fields");
+        const fd = new FormData(); fd.append("file", f); fd.append("upload_preset", "cho_students_upload");
         const res = await fetch("https://api.cloudinary.com/v1_1/dbl5rshwi/image/upload", { method: "POST", body: fd });
         const data = await res.json();
-        await addDoc(collection(db, "students"), { name, class: cls, passport: data.secure_url, results: {} });
-        alert("Done!");
-        nav('dashSec', document.querySelector('.tab-item'));
+        await addDoc(collection(db, "students"), { name: n, class: c, passport: data.secure_url, results: {} });
+        alert("Registered!");
+        nav('listSec', document.querySelectorAll('.tab-item')[1]);
+    };
+
+    window.filter = () => {
+        const val = document.getElementById('search').value.toLowerCase();
+        document.querySelectorAll('.student-row').forEach(r => {
+            r.style.display = r.innerText.toLowerCase().includes(val) ? "block" : "none";
+        });
     };
 </script>
 </body>
