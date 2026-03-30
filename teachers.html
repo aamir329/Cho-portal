@@ -1,257 +1,321 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Crescent Heights Oyo – Teachers Portal</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crescent Heights Oyo – Teacher Portal</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root { --primary: #0b3c5d; --secondary: #082c44; --bg: #162539; --success: #27ae60; --danger: #c0392b; }
+        body { margin:0; font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: #333; }
+        
+        /* Layout */
+        .header { background: var(--primary); color: #fff; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .wrapper { display: flex; }
+        .sidebar { width: 240px; background: var(--secondary); min-height: 100vh; color: #fff; }
+        .sidebar h3 { text-align: center; padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); margin: 0; }
+        .sidebar a { display: block; padding: 15px 20px; color: #adb5bd; cursor: pointer; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,0.05); transition: 0.3s; }
+        .sidebar a:hover { background: var(--primary); color: #fff; }
+        .content { flex: 1; padding: 30px; }
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+        /* UI Components */
+        .card { background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); margin-bottom: 20px; }
+        .hidden { display: none; }
+        input, select, textarea { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        button { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; transition: 0.2s; }
+        .btn-main { background: var(--primary); color: white; }
+        .btn-green { background: var(--success); color: white; }
+        .btn-red { background: var(--danger); color: white; }
 
-<style>
-body{margin:0;font-family:"Segoe UI",Arial;background:#162539;}
-.header{background:#0b3c5d;color:#fff;padding:15px 25px;display:flex;justify-content:space-between;align-items:center;}
-.wrapper{display:flex}
-.sidebar{width:240px;background:#082c44;min-height:100vh;color:#fff;}
-.sidebar h3{text-align:center;padding:20px;border-bottom:1px solid rgba(255,255,255,.2);}
-.sidebar a{display:block;padding:14px 20px;color:#fff;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.08);}
-.sidebar a:hover{background:#0b3c5d}
-.content{flex:1;padding:25px}
-.card{background:#fff;padding:20px;margin-bottom:25px;border-radius:6px;box-shadow:0 2px 6px rgba(0,0,0,.1);}
-input,select,button{padding:10px;margin:5px 0;border:1px solid #ccc;border-radius:4px;width:100%;}
-button{background:#0b3c5d;color:#fff;border:none;cursor:pointer;}
-button:hover{background:#145a86}
-table{width:100%;border-collapse:collapse;margin-top:10px;}
-th,td{border:1px solid #ccc;padding:8px;text-align:center;}
-th{background:#0b3c5d;color:#fff}
-.hidden{display:none}
-.passport{width:40px;height:40px;border-radius:50%;object-fit:cover;}
-</style>
+        /* Student Table */
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #eee; padding: 12px; text-align: center; }
+        th { background: #f8f9fa; color: var(--primary); }
+        .passport-thumb { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); cursor: pointer; }
+
+        /* Modal & Report Card */
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; justify-content: center; overflow-y: auto; z-index: 1000; padding: 20px 0; }
+        .modal-content { background: #fff; width: 95%; max-width: 1000px; padding: 30px; border-radius: 12px; position: relative; align-self: flex-start; }
+        .close-btn { position: absolute; top: 15px; right: 20px; font-size: 28px; cursor: pointer; color: #666; }
+        
+        .report-card-ui { border: 2px solid #333; padding: 20px; margin-top: 20px; background: #fff; }
+        .score-input { width: 60px; text-align: center; font-weight: bold; padding: 5px; border: 1px solid #ccc; }
+        .low-score { color: var(--danger); border-color: var(--danger); background: #fff5f5; }
+        .high-score { color: var(--success); border-color: var(--success); background: #f5fff5; }
+        .total-cell { font-weight: bold; background: #f0f0f0; }
+        .subject-name { text-align: left; font-weight: 600; background: #fafafa; }
+    </style>
 </head>
-
 <body>
 
-<script>
-if(localStorage.getItem("teacherLoggedIn")!=="yes"){
-  window.location.href="login.html";
-}
-</script>
-
 <div class="header">
-  <h2>Crescent Heights Oyo – Teachers Portal</h2>
-  <button onclick="logout()">Logout</button>
+    <h2>CRESCENT HEIGHTS OYO - ADMIN</h2>
+    <button class="btn-red" onclick="location.reload()">Refresh Portal</button>
 </div>
 
 <div class="wrapper">
-<div class="sidebar">
-  <h3>Teacher Menu</h3>
-  <a onclick="show('dashboard')">Dashboard</a>
-  <a onclick="show('manage')">View Students</a>
-  <a onclick="show('create')">Create Student</a>
-  <a onclick="show('results')">Add Result</a>
+    <div class="sidebar">
+        <h3>TEACHER MENU</h3>
+        <a onclick="showSection('dashboard')">Dashboard</a>
+        <a onclick="showSection('manage')">Student Profiles</a>
+        <a onclick="showSection('create')">New Registration</a>
+    </div>
+
+    <div class="content">
+        <div id="dashboard" class="card">
+            <h3>School Overview</h3>
+            <p>Total Registered Students: <b id="statCount">0</b></p>
+            <canvas id="mainChart" style="max-height: 300px;"></canvas>
+        </div>
+
+        <div id="manage" class="card hidden">
+            <h3>Student Directory</h3>
+            <input id="searchBar" placeholder="Search by name or ID..." onkeyup="filterStudents()">
+            <table id="studentList">
+                <thead>
+                    <tr>
+                        <th>Photo</th>
+                        <th>Name</th>
+                        <th>Class</th>
+                        <th>Student ID</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="studentBody"></tbody>
+            </table>
+        </div>
+
+        <div id="create" class="card hidden">
+            <h3>Register New Student</h3>
+            <label>Full Name</label>
+            <input id="regName" placeholder="Enter Full Name">
+            <label>Current Class</label>
+            <select id="regClass">
+                <option>JSS1</option><option>JSS2</option><option>JSS3</option>
+                <option>SS1</option><option>SS2</option><option>SS3</option>
+            </select>
+            <label>Passport Photograph</label>
+            <input type="file" id="regFile" accept="image/*">
+            <button class="btn-main" onclick="handleRegistration()">Upload & Save Student</button>
+        </div>
+    </div>
 </div>
 
-<div class="content">
-
-<div id="dashboard" class="card">
-<h3>Dashboard</h3>
-<p>Total Students: <b id="totalStudents">0</b></p>
-<canvas id="performanceChart"></canvas>
-</div>
-
-<div id="manage" class="card hidden">
-<h3>Students List</h3>
-<input id="searchBox" placeholder="Search..." onkeyup="searchStudent()">
-<table id="studentTable"></table>
-</div>
-
-<div id="create" class="card hidden">
-<h3>Create Student</h3>
-<input id="cName" placeholder="Student Name">
-<select id="cClass">
-<option>JSS1</option><option>JSS2</option><option>JSS3</option>
-<option>SS1</option><option>SS2</option><option>SS3</option>
-</select>
-<input type="file" id="cPassport" accept="image/*">
-<button onclick="createStudent()">Create Student</button>
-</div>
-
-<div id="results" class="card hidden">
-<h3>Add Result</h3>
-<input id="rMatric" placeholder="Matric Number">
-<input id="rSubject" placeholder="Subject">
-<input id="rScore" type="number" placeholder="Score">
-<select id="rTerm">
-<option>First Term</option>
-<option>Second Term</option>
-<option>Third Term</option>
-</select>
-<button onclick="addResult()">Add Result</button>
-</div>
-
-</div>
+<div id="profileModal" class="modal hidden">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        <div id="profileView"></div>
+    </div>
 </div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, where } 
-from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-const firebaseConfig={
-apiKey:"YOUR_API_KEY",
-authDomain:"crescent-heights-oyo.firebaseapp.com",
-projectId:"crescent-heights-oyo",
-};
+    // --- CONFIGURATION ---
+    const firebaseConfig = {
+        apiKey: "YOUR_API_KEY",
+        authDomain: "crescent-heights-oyo.firebaseapp.com",
+        projectId: "crescent-heights-oyo",
+    };
 
-const app=initializeApp(firebaseConfig);
-const db=getFirestore(app);
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    let allStudents = [];
 
-let allStudents=[];
-let chartInstance=null;
+    // --- NAVIGATION ---
+    window.showSection = (id) => {
+        document.querySelectorAll('.card').forEach(c => c.classList.add('hidden'));
+        document.getElementById(id).classList.remove('hidden');
+        if(id === 'manage') loadStudents();
+    };
 
-window.show=id=>{
-document.querySelectorAll('.card').forEach(c=>c.classList.add('hidden'));
-document.getElementById(id).classList.remove('hidden');
-};
+    window.closeModal = () => document.getElementById('profileModal').classList.add('hidden');
 
-function grade(avg){
-if(avg>=70) return "A";
-if(avg>=60) return "B";
-if(avg>=50) return "C";
-if(avg>=45) return "D";
-return "F";
-}
+    // --- REGISTRATION & CLOUDINARY ---
+    window.handleRegistration = async () => {
+        const name = document.getElementById('regName').value;
+        const sClass = document.getElementById('regClass').value;
+        const file = document.getElementById('regFile').files[0];
 
-function remark(avg){
-if(avg>=70) return "Excellent";
-if(avg>=60) return "Very Good";
-if(avg>=50) return "Good";
-if(avg>=45) return "Pass";
-return "Fail";
-}
+        if(!name || !file) return alert("Please fill all fields");
 
-function calculateAverage(results){
-if(!results.length) return 0;
-return Number((results.reduce((a,b)=>a+b.score,0)/results.length).toFixed(1));
-}
+        // Cloudinary Upload
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("upload_preset", "cho_students_upload"); // Ensure this is "Unsigned" in Cloudinary
 
-function getPosition(index){
-if(index===0) return "1st";
-if(index===1) return "2nd";
-if(index===2) return "3rd";
-return (index+1)+"th";
-}
+        try {
+            const res = await fetch("https://api.cloudinary.com/v1_1/dbl5rshwi/image/upload", { method: "POST", body: formData });
+            const data = await res.json();
 
-window.createStudent=async()=>{
-const matric="CHO"+Date.now().toString().slice(-6);
-const file=cPassport.files[0];
-if(!file) return alert("Select passport");
+            await addDoc(collection(db, "students"), {
+                name,
+                class: sClass,
+                passport: data.secure_url,
+                matric: "CHO-" + Math.floor(1000 + Math.random() * 9000),
+                results: {} // Structure: { [class]: { [term]: { subjects... } } }
+            });
 
-const fd=new FormData();
-fd.append("file",file);
-fd.append("upload_preset","cho_students_upload");
+            alert("Student Registered Successfully!");
+            showSection('manage');
+        } catch (e) {
+            console.error(e);
+            alert("Error during registration.");
+        }
+    };
 
-const res=await fetch("https://api.cloudinary.com/v1_1/dbl5rshwi/image/upload",{method:"POST",body:fd});
-const data=await res.json();
-if(data.error) return alert(data.error.message);
+    // --- DATABASE OPERATIONS ---
+    window.loadStudents = async () => {
+        const snap = await getDocs(collection(db, "students"));
+        allStudents = [];
+        const tbody = document.getElementById('studentBody');
+        tbody.innerHTML = "";
+        
+        snap.forEach(d => {
+            const s = { id: d.id, ...d.data() };
+            allStudents.push(s);
+            tbody.innerHTML += `
+                <tr>
+                    <td><img src="${s.passport}" class="passport-thumb" onclick="openProfile('${s.id}')"></td>
+                    <td style="text-align:left; cursor:pointer;" onclick="openProfile('${s.id}')"><b>${s.name}</b></td>
+                    <td>${s.class}</td>
+                    <td><code>${s.matric}</code></td>
+                    <td>
+                        <button class="btn-main" onclick="openProfile('${s.id}')">View/Add Results</button>
+                    </td>
+                </tr>`;
+        });
+        document.getElementById('statCount').innerText = allStudents.length;
+    };
 
-await addDoc(collection(db,"students"),{
-matric,name:cName.value,class:cClass.value,
-passport:data.secure_url,results:[]
-});
-alert("Student Created");
-loadDashboard();
-};
+    // --- PROFILE & DYNAMIC REPORT CARD ---
+    window.openProfile = async (id) => {
+        const s = allStudents.find(x => x.id === id);
+        const container = document.getElementById('profileView');
+        document.getElementById('profileModal').classList.remove('hidden');
 
-window.addResult=async()=>{
-const term=rTerm.value; // get selected term
-const snap=await getDocs(query(collection(db,"students"),where("matric","==",rMatric.value)));
-if(snap.empty) return alert("Student not found");
-snap.forEach(async d=>{
-const s=d.data();
-if(!s.results) s.results=[];
-s.results.push({subject:rSubject.value,score:Number(rScore.value),term});
-await updateDoc(doc(db,"students",d.id),{results:s.results});
-});
-alert("Result Added");
-loadDashboard();
-};
+        container.innerHTML = `
+            <div style="display:flex; gap:25px; align-items:center; border-bottom: 2px solid #eee; padding-bottom: 20px;">
+                <img src="${s.passport}" style="width:130px; height:130px; border-radius:8px; object-fit:cover; border:3px solid #0b3c5d;">
+                <div style="flex:1">
+                    <h1 style="margin:0; color:#0b3c5d;">${s.name}</h1>
+                    <p><b>ID:</b> ${s.matric} | <b>Class:</b> ${s.class}</p>
+                    <div style="display:flex; gap:10px;">
+                        <select id="selTerm" style="width:150px"><option>1st Term</option><option>2nd Term</option><option>3rd Term</option></select>
+                        <select id="selClass" style="width:120px">
+                            <option ${s.class=='JSS1'?'selected':''}>JSS1</option><option ${s.class=='JSS2'?'selected':''}>JSS2</option>
+                            <option ${s.class=='JSS3'?'selected':''}>JSS3</option><option ${s.class=='SS1'?'selected':''}>SS1</option>
+                            <option ${s.class=='SS2'?'selected':''}>SS2</option><option ${s.class=='SS3'?'selected':''}>SS3</option>
+                        </select>
+                        <button class="btn-green" onclick="generateReportUI('${id}')">Open Digital Card</button>
+                    </div>
+                </div>
+                <div style="text-align:right">
+                    <button class="btn-red" onclick="deleteStudent('${id}')">Delete Student</button>
+                </div>
+            </div>
+            <div id="reportUI"></div>
+        `;
+    };
 
-window.editStudent=async(id)=>{
-const name=prompt("New Name:");
-if(!name) return;
-await updateDoc(doc(db,"students",id),{name});
-loadDashboard();
-};
+    window.generateReportUI = async (id) => {
+        const s = allStudents.find(x => x.id === id);
+        const term = document.getElementById('selTerm').value;
+        const cls = document.getElementById('selClass').value;
+        const existing = s.results?.[cls]?.[term] || {};
 
-window.promoteStudent=async(id,currentClass)=>{
-const classes=["JSS1","JSS2","JSS3","SS1","SS2","SS3"];
-let index=classes.indexOf(currentClass);
-if(index<classes.length-1){
-await updateDoc(doc(db,"students",id),{class:classes[index+1]});
-alert("Promoted");
-loadDashboard();
-}
-};
+        const subjects = ["Mathematics", "English Language", "Basic Science", "Social Studies", "Agric Science", "Civic Education", "ICT", "P.H.E", "Business Studies"];
 
-window.deleteStudent=async(id)=>{
-if(confirm("Delete student?")){
-await deleteDoc(doc(db,"students",id));
-loadDashboard();
-}
-};
+        document.getElementById('reportUI').innerHTML = `
+            <div class="report-card-ui">
+                <div style="text-align:center;">
+                    <img src="Card.png" style="width:80px;" onerror="this.src='https://via.placeholder.com/80?text=LOGO'">
+                    <h2 style="margin:5px 0;">CRESCENT HEIGHTS, OYO</h2>
+                    <p><b>STUDENT REPORT CARD - ${cls} (${term})</b></p>
+                </div>
+                
+                <div style="display:flex; gap:20px;">
+                    <div style="flex:2">
+                        <table>
+                            <thead>
+                                <tr><th>SUBJECTS</th><th>CA (30)</th><th>EXAM (70)</th><th>TOTAL</th></tr>
+                            </thead>
+                            <tbody>
+                                ${subjects.map(sub => {
+                                    const score = existing[sub] || { ca: '', ex: '' };
+                                    const total = (Number(score.ca) || 0) + (Number(score.ex) || 0);
+                                    return `
+                                    <tr>
+                                        <td class="subject-name">${sub}</td>
+                                        <td><input type="number" class="score-input ca-in" data-sub="${sub}" value="${score.ca}" oninput="checkMark(this, 15)"></td>
+                                        <td><input type="number" class="score-input ex-in" data-sub="${sub}" value="${score.ex}" oninput="checkMark(this, 35)"></td>
+                                        <td class="total-cell">${total}</td>
+                                    </tr>`;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div style="flex:1; border-left:1px solid #ddd; padding-left:20px;">
+                        <h4>Affective Domain (1-5)</h4>
+                        <p>Punctuality: <input type="number" id="affPunct" value="${existing.punctuality || ''}" min="1" max="5"></p>
+                        <p>Neatness: <input type="number" id="affNeat" value="${existing.neatness || ''}" min="1" max="5"></p>
+                        <hr>
+                        <h4>Remarks</h4>
+                        <textarea id="remarkText" placeholder="Enter Teacher's Comment">${existing.remark || ''}</textarea>
+                        <button class="btn-green" style="width:100%; height:50px; margin-top:15px;" onclick="saveResultData('${id}', '${cls}', '${term}')">SAVE REPORT CARD</button>
+                    </div>
+                </div>
+            </div>
+        `;
+    };
 
-window.searchStudent=()=>{
-const value=searchBox.value.toLowerCase();
-const filtered=allStudents.filter(s=>s.name.toLowerCase().includes(value)||s.matric.toLowerCase().includes(value));
-renderTable(filtered);
-};
+    window.checkMark = (el, min) => {
+        const val = parseFloat(el.value) || 0;
+        el.className = val < min ? "score-input low-score" : "score-input high-score";
+        
+        const row = el.closest('tr');
+        const ca = parseFloat(row.querySelector('.ca-in').value) || 0;
+        const ex = parseFloat(row.querySelector('.ex-in').value) || 0;
+        row.querySelector('.total-cell').innerText = ca + ex;
+    };
 
-function renderTable(data){
-data.sort((a,b)=>calculateAverage(b.results)-calculateAverage(a.results));
-studentTable.innerHTML="<tr><th>Photo</th><th>Name</th><th>Matric</th><th>Class</th><th>Avg</th><th>Grade</th><th>Remark</th><th>Position</th><th>Actions</th></tr>";
-data.forEach((s,i)=>{
-let avg=calculateAverage(s.results);
-studentTable.innerHTML+=`
-<tr>
-<td><img src="${s.passport}" class="passport"></td>
-<td>${s.name}</td>
-<td>${s.matric}</td>
-<td>${s.class}</td>
-<td>${avg}</td>
-<td>${grade(avg)}</td>
-<td>${remark(avg)}</td>
-<td>${getPosition(i)}</td>
-<td>
-<button onclick="editStudent('${s.id}')">Edit</button>
-<button onclick="promoteStudent('${s.id}','${s.class}')">Promote</button>
-<button onclick="deleteStudent('${s.id}')">Delete</button>
-</td>
-</tr>`;
-});
-}
+    window.saveResultData = async (id, cls, term) => {
+        const docRef = doc(db, "students", id);
+        const snap = await getDoc(docRef);
+        const currentData = snap.data();
+        
+        const resObj = {
+            remark: document.getElementById('remarkText').value,
+            punctuality: document.getElementById('affPunct').value,
+            neatness: document.getElementById('affNeat').value
+        };
 
-function renderChart(){
-const labels=allStudents.map(s=>s.name);
-const averages=allStudents.map(s=>calculateAverage(s.results));
-if(chartInstance) chartInstance.destroy();
-chartInstance=new Chart(performanceChart,{type:'bar',data:{labels,datasets:[{label:'Average',data:averages}]}})
-}
+        document.querySelectorAll('.ca-in').forEach(input => {
+            const sub = input.dataset.sub;
+            const exVal = document.querySelector(`.ex-in[data-sub="${sub}"]`).value;
+            resObj[sub] = { ca: input.value, ex: exVal };
+        });
 
-async function loadDashboard(){
-const snap=await getDocs(collection(db,"students"));
-allStudents=[];
-snap.forEach(d=>{let s=d.data();s.id=d.id;if(!s.results)s.results=[];allStudents.push(s);});
-totalStudents.innerText=allStudents.length;
-renderTable(allStudents);
-renderChart();
-}
+        const allResults = currentData.results || {};
+        if(!allResults[cls]) allResults[cls] = {};
+        allResults[cls][term] = resObj;
 
-window.logout=()=>{
-localStorage.removeItem("teacherLoggedIn");
-window.location.href="login.html";
-};
+        await updateDoc(docRef, { results: allResults });
+        alert("Report card successfully updated and saved to Cloud Database!");
+        closeModal();
+        loadStudents();
+    };
 
-loadDashboard();
+    window.deleteStudent = async (id) => {
+        if(confirm("Delete this student forever?")) {
+            await deleteDoc(doc(db, "students", id));
+            closeModal();
+            loadStudents();
+        }
+    };
+
+    loadStudents();
 </script>
 </body>
 </html>
