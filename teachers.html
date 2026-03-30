@@ -6,223 +6,104 @@
     <title>Crescent Heights Admin</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        :root { 
-            --primary: #0b3c5d; 
-            --secondary: #162539; 
-            --accent: #27ae60; 
-            --danger: #e74c3c; 
-            --text-light: #ffffff;
-            --card-bg: #ffffff;
-        }
+        :root { --primary: #0b3c5d; --secondary: #162539; --accent: #27ae60; --danger: #e74c3c; --card-bg: #ffffff; }
+        body { font-family: -apple-system, sans-serif; background-color: var(--secondary); color: #333; line-height: 1.5; }
 
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-            background-color: var(--secondary); 
-            color: #333;
-            line-height: 1.5;
-        }
+        /* Top Nav */
+        .top-nav { background: var(--primary); color: white; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+        .top-nav h1 { font-size: 1rem; }
 
-        /* Fixed Top Navigation */
-        .top-nav {
-            background: var(--primary);
-            color: white;
-            padding: 12px 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-        }
-
-        .top-nav h1 { font-size: 1rem; font-weight: bold; }
-
-        /* Bottom Navigation for Mobile */
-        .bottom-tabs {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            background: #fff;
-            display: flex;
-            border-top: 1px solid #ddd;
-            z-index: 1000;
-        }
-
-        .tab-item {
-            flex: 1;
-            text-align: center;
-            padding: 12px 5px;
-            font-size: 0.75rem;
-            color: #666;
-            cursor: pointer;
-        }
-
+        /* Bottom Nav */
+        .bottom-tabs { position: fixed; bottom: 0; width: 100%; background: #fff; display: flex; border-top: 1px solid #ddd; z-index: 1000; }
+        .tab-item { flex: 1; text-align: center; padding: 12px 5px; font-size: 0.75rem; color: #666; cursor: pointer; }
         .tab-item.active { color: var(--primary); font-weight: bold; border-top: 3px solid var(--primary); }
 
-        /* Content Area */
+        /* Content */
         .container { padding: 15px; padding-bottom: 80px; }
-        .card { 
-            background: var(--card-bg); 
-            border-radius: 12px; 
-            padding: 20px; 
-            margin-bottom: 20px; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
-        }
-
+        .card { background: var(--card-bg); border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         .hidden { display: none !important; }
 
-        /* Mobile Student List */
-        .student-row {
-            display: flex;
-            align-items: center;
-            padding: 12px;
-            background: #fff;
-            margin-bottom: 10px;
-            border-radius: 10px;
-            gap: 15px;
-        }
-
+        /* Student Rows */
+        .student-row { display: flex; align-items: center; padding: 12px; background: #fff; margin-bottom: 10px; border-radius: 10px; gap: 15px; }
         .passport { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); }
         .student-info { flex: 1; }
-        .student-info h4 { margin: 0; font-size: 0.95rem; }
-        .student-info p { margin: 0; font-size: 0.8rem; color: #777; }
 
-        /* Result Entry Form (The "Card" Design) */
-        .subject-card {
-            background: #f9f9f9;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 12px;
-            border-left: 5px solid var(--primary);
-        }
-
-        .subject-card h4 { margin-bottom: 10px; color: var(--primary); font-size: 0.9rem; }
-        .input-row { display: flex; gap: 10px; }
+        /* Subject Cards */
+        .subject-card { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 12px; border-left: 5px solid var(--primary); position: relative; }
+        .remove-sub { position: absolute; top: 10px; right: 10px; color: var(--danger); font-weight: bold; font-size: 1.2rem; cursor: pointer; }
+        .input-row { display: flex; gap: 10px; margin-top: 10px; }
         .input-group { flex: 1; }
-        .input-group label { display: block; font-size: 0.7rem; color: #666; margin-bottom: 4px; }
+        .input-group label { display: block; font-size: 0.7rem; color: #666; }
         
-        input, select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 1rem;
-        }
-
-        .btn {
-            width: 100%;
-            padding: 14px;
-            border: none;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
+        input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 1rem; }
+        .btn { width: 100%; padding: 14px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
         .btn-primary { background: var(--primary); color: white; }
         .btn-success { background: var(--accent); color: white; }
+        .btn-add { background: #eee; color: #333; margin-bottom: 15px; border: 1px dashed #999; }
 
-        /* Modal for Mobile */
-        .full-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: white;
-            z-index: 2000;
-            overflow-y: auto;
-            padding: 20px;
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #eee;
-        }
+        /* Modal */
+        .full-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 2000; overflow-y: auto; padding: 20px; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #eee; }
     </style>
 </head>
 <body>
 
 <div class="top-nav">
     <h1>CRESCENT HEIGHTS ADMIN</h1>
-    <span style="font-size: 0.8rem;" id="liveStatus">● Online</span>
+    <button onclick="location.reload()" style="background:none; color:white; border:1px solid white; padding:2px 8px; border-radius:4px; font-size:0.7rem;">Refresh</button>
 </div>
 
 <div class="container">
     <div id="dashSec" class="card">
-        <h2 style="font-size: 1.2rem;">Welcome, Teacher</h2>
-        <p style="font-size: 0.9rem; color: #666;">Manage students and process terminal reports.</p>
+        <h2 style="font-size: 1.2rem;">Teacher Dashboard</h2>
         <div style="display: flex; gap: 10px; margin-top: 20px;">
             <div style="flex:1; background: #eef2f5; padding: 15px; border-radius: 8px; text-align: center;">
-                <p style="font-size: 0.7rem; color: #777;">STUDENTS</p>
+                <p style="font-size: 0.7rem;">STUDENTS</p>
                 <b id="countVal" style="font-size: 1.5rem; color: var(--primary);">0</b>
-            </div>
-            <div style="flex:1; background: #eef2f5; padding: 15px; border-radius: 8px; text-align: center;">
-                <p style="font-size: 0.7rem; color: #777;">TERM</p>
-                <b style="font-size: 1.1rem; color: var(--primary);">2025/26</b>
             </div>
         </div>
     </div>
 
     <div id="listSec" class="hidden">
-        <h3 style="color: white; margin-bottom: 15px;">Student Directory</h3>
-        <input type="text" id="search" placeholder="Search by name..." style="margin-bottom: 15px;" onkeyup="filter()">
-        <div id="studentListContainer">
-            </div>
+        <input type="text" id="search" placeholder="Search students..." style="margin-bottom: 15px;" onkeyup="filter()">
+        <div id="studentListContainer"></div>
     </div>
 
     <div id="regSec" class="card hidden">
-        <h3>Register Student</h3>
-        <label style="font-size: 0.8rem;">Full Name (Surname First)</label>
-        <input type="text" id="rName" placeholder="e.g. ADEYEMI Musa">
-        
-        <label style="font-size: 0.8rem; margin-top: 10px; display: block;">Class</label>
-        <select id="rClass">
-            <option>JSS1</option><option>JSS2</option><option>JSS3</option>
-            <option>SS1</option><option>SS2</option><option>SS3</option>
-        </select>
-
-        <label style="font-size: 0.8rem; margin-top: 10px; display: block;">Passport Image</label>
+        <h3>New Registration</h3>
+        <input type="text" id="rName" placeholder="Full Name">
+        <select id="rClass"><option>JSS1</option><option>JSS2</option><option>JSS3</option><option>SS1</option><option>SS2</option><option>SS3</option></select>
         <input type="file" id="rFile" accept="image/*">
-        
-        <button class="btn btn-primary" style="margin-top: 20px;" onclick="register()">Upload & Save</button>
+        <button class="btn btn-primary" onclick="register()">Save Student</button>
     </div>
 </div>
 
 <div id="resultModal" class="full-modal hidden">
     <div class="modal-header">
         <h3 id="mTitle">Edit Result</h3>
-        <button onclick="closeModal()" style="background:none; border:none; font-size: 1.5rem;">&times;</button>
+        <button onclick="closeModal()" style="border:none; font-size:1.8rem; background:none;">&times;</button>
     </div>
 
-    <div style="margin-bottom: 20px; background: #f0f4f8; padding: 10px; border-radius: 6px;">
-        <label style="font-size: 0.7rem;">SELECT TERM & CLASS</label>
-        <div style="display: flex; gap: 5px;">
-            <select id="mTerm"><option>1st Term</option><option>2nd Term</option><option>3rd Term</option></select>
-            <select id="mClass"><option>JSS1</option><option>JSS2</option><option>JSS3</option></select>
-        </div>
+    <div style="display: flex; gap: 5px; margin-bottom: 15px;">
+        <select id="mTerm"><option>1st Term</option><option>2nd Term</option><option>3rd Term</option></select>
+        <select id="mClass"><option>JSS1</option><option>JSS2</option><option>JSS3</option><option>SS1</option><option>SS2</option><option>SS3</option></select>
     </div>
+
+    <button class="btn btn-add" onclick="addNewSubjectField()">➕ Add New Subject</button>
 
     <div id="subjectInputs">
         </div>
 
-    <div class="card" style="margin-top: 20px; border: 1px solid #ddd;">
-        <h4>Affective Domain (1-5)</h4>
+    <div class="card" style="border: 1px solid #ddd;">
+        <h4>Affective Domain & Remarks</h4>
         <div class="input-row">
             <div class="input-group"><label>Punctuality</label><input type="number" id="aPunct"></div>
             <div class="input-group"><label>Neatness</label><input type="number" id="aNeat"></div>
         </div>
-        <label style="display:block; margin-top:15px; font-size:0.7rem;">Teacher's Comments</label>
-        <textarea id="aRemark" style="width:100%; height:80px; border-radius:6px; padding:10px; border:1px solid #ccc;"></textarea>
+        <textarea id="aRemark" placeholder="Teacher's Remark..." style="margin-top:10px; height:60px;"></textarea>
     </div>
 
-    <button class="btn btn-success" id="saveBtn" onclick="saveResult()">Save Terminal Result</button>
+    <button class="btn btn-success" id="saveBtn" onclick="saveResult()">Save All Data</button>
 </div>
 
 <nav class="bottom-tabs">
@@ -249,68 +130,30 @@
     let students = [];
     let currentId = null;
 
-    // Navigation Logic
     window.nav = (id, el) => {
-        document.getElementById('dashSec').classList.add('hidden');
-        document.getElementById('listSec').classList.add('hidden');
-        document.getElementById('regSec').classList.add('hidden');
+        document.querySelectorAll('.container > div').forEach(d => d.classList.add('hidden'));
         document.getElementById(id).classList.remove('hidden');
-        
         document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
         el.classList.add('active');
-
         if(id === 'listSec') load();
     };
 
     window.closeModal = () => document.getElementById('resultModal').classList.add('hidden');
 
-    // Registration Logic
-    window.register = async () => {
-        const name = document.getElementById('rName').value;
-        const cls = document.getElementById('rClass').value;
-        const file = document.getElementById('rFile').files[0];
-        if(!name || !file) return alert("Fill all fields");
-
-        const fd = new FormData();
-        fd.append("file", file);
-        fd.append("upload_preset", "cho_students_upload");
-
-        try {
-            const res = await fetch("https://api.cloudinary.com/v1_1/dbl5rshwi/image/upload", { method: "POST", body: fd });
-            const data = await res.json();
-
-            await addDoc(collection(db, "students"), {
-                name, class: cls, passport: data.secure_url,
-                matric: "CHO-" + Math.floor(1000 + Math.random() * 9000),
-                results: {}
-            });
-            alert("Success!");
-            location.reload();
-        } catch(e) { alert("Error"); }
-    };
-
-    // Load Students
-    window.load = async () => {
-        const snap = await getDocs(collection(db, "students"));
-        students = [];
-        const container = document.getElementById('studentListContainer');
-        container.innerHTML = "";
-        
-        snap.forEach(d => {
-            const s = { id: d.id, ...d.data() };
-            students.push(s);
-            container.innerHTML += `
-                <div class="student-row" onclick="openResults('${s.id}')">
-                    <img src="${s.passport}" class="passport">
-                    <div class="student-info">
-                        <h4>${s.name}</h4>
-                        <p>${s.class} • ${s.matric}</p>
-                    </div>
-                    <span style="color:var(--primary); font-weight:bold;">Edit ></span>
-                </div>
-            `;
-        });
-        document.getElementById('countVal').innerText = students.length;
+    // Add Blank Subject Card
+    window.addNewSubjectField = (subName = "", ca = "", ex = "") => {
+        const box = document.getElementById('subjectInputs');
+        const div = document.createElement('div');
+        div.className = "subject-card";
+        div.innerHTML = `
+            <span class="remove-sub" onclick="this.parentElement.remove()">&times;</span>
+            <input type="text" class="sub-name" placeholder="Subject Name" value="${subName}" style="font-weight:bold; border:none; background:transparent; padding:0; margin-bottom:5px;">
+            <div class="input-row">
+                <div class="input-group"><label>C.A</label><input type="number" class="ca-in" value="${ca}"></div>
+                <div class="input-group"><label>Exam</label><input type="number" class="ex-in" value="${ex}"></div>
+            </div>
+        `;
+        box.appendChild(div);
     };
 
     window.openResults = (id) => {
@@ -318,35 +161,15 @@
         const s = students.find(x => x.id === id);
         document.getElementById('mTitle').innerText = s.name;
         document.getElementById('resultModal').classList.remove('hidden');
-
-        // Create Mobile-Friendly Subject List
-        const subjects = ["Mathematics", "English Language", "Basic Science", "Social Studies", "Agric Science", "Civic Education", "ICT", "P.H.E", "Business Studies", "Yoruba"];
-        const box = document.getElementById('subjectInputs');
-        box.innerHTML = "";
-
-        subjects.forEach(sub => {
-            box.innerHTML += `
-                <div class="subject-card">
-                    <h4>${sub}</h4>
-                    <div class="input-row">
-                        <div class="input-group">
-                            <label>C.A (30)</label>
-                            <input type="number" class="ca-in" data-sub="${sub}" placeholder="0-30">
-                        </div>
-                        <div class="input-group">
-                            <label>Exam (70)</label>
-                            <input type="number" class="ex-in" data-sub="${sub}" placeholder="0-70">
-                        </div>
-                    </div>
-                </div>
-            `;
-        });
+        document.getElementById('subjectInputs').innerHTML = ""; // Clear old fields
+        
+        // Auto-load current class/term
+        document.getElementById('mClass').value = s.class;
     };
 
     window.saveResult = async () => {
         const btn = document.getElementById('saveBtn');
-        btn.innerText = "Saving Data...";
-        btn.disabled = true;
+        btn.innerText = "Syncing..."; btn.disabled = true;
 
         const cls = document.getElementById('mClass').value;
         const trm = document.getElementById('mTerm').value;
@@ -356,10 +179,12 @@
             neatness: document.getElementById('aNeat').value
         };
 
-        document.querySelectorAll('.ca-in').forEach(el => {
-            const sub = el.dataset.sub;
-            const ex = document.querySelector(`.ex-in[data-sub="${sub}"]`).value;
-            resObj[sub] = { ca: el.value, ex: ex };
+        // Capture all custom subjects
+        document.querySelectorAll('.subject-card').forEach(card => {
+            const name = card.querySelector('.sub-name').value;
+            const ca = card.querySelector('.ca-in').value;
+            const ex = card.querySelector('.ex-in').value;
+            if(name) resObj[name] = { ca, ex };
         });
 
         const docRef = doc(db, "students", currentId);
@@ -369,22 +194,41 @@
         results[cls][trm] = resObj;
 
         await updateDoc(docRef, { results });
-        alert("Saved to Cloud Successfully!");
+        alert("Saved!");
         closeModal();
-        btn.innerText = "Save Terminal Result";
-        btn.disabled = false;
+        btn.innerText = "Save All Data"; btn.disabled = false;
     };
 
-    window.filter = () => {
-        const val = document.getElementById('search').value.toLowerCase();
-        const rows = document.querySelectorAll('.student-row');
-        rows.forEach(r => {
-            const txt = r.innerText.toLowerCase();
-            r.style.display = txt.includes(val) ? "flex" : "none";
+    // Boilerplate Load/Register
+    window.load = async () => {
+        const snap = await getDocs(collection(db, "students"));
+        students = [];
+        const container = document.getElementById('studentListContainer');
+        container.innerHTML = "";
+        snap.forEach(d => {
+            const s = { id: d.id, ...d.data() };
+            students.push(s);
+            container.innerHTML += `
+                <div class="student-row" onclick="openResults('${s.id}')">
+                    <img src="${s.passport}" class="passport">
+                    <div class="student-info"><h4>${s.name}</h4><p>${s.class}</p></div>
+                </div>`;
         });
+        document.getElementById('countVal').innerText = students.length;
     };
 
+    window.register = async () => {
+        const name = document.getElementById('rName').value;
+        const cls = document.getElementById('rClass').value;
+        const file = document.getElementById('rFile').files[0];
+        if(!name || !file) return alert("Missing info");
+        const fd = new FormData(); fd.append("file", file); fd.append("upload_preset", "cho_students_upload");
+        const res = await fetch("https://api.cloudinary.com/v1_1/dbl5rshwi/image/upload", { method: "POST", body: fd });
+        const data = await res.json();
+        await addDoc(collection(db, "students"), { name, class: cls, passport: data.secure_url, results: {} });
+        alert("Done!");
+        nav('dashSec', document.querySelector('.tab-item'));
+    };
 </script>
-
 </body>
 </html>
