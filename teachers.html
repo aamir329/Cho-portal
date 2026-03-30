@@ -6,23 +6,26 @@
     <title>Crescent Heights Oyo – Teacher Portal</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        /* CSS RESET - FIXES THE WHITE GAP AT TOP */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         :root { --primary: #0b3c5d; --secondary: #082c44; --bg: #162539; --success: #27ae60; --danger: #c0392b; }
-        body { margin:0; font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: #333; }
+        body { font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: #333; }
         
         /* Layout */
-        .header { background: var(--primary); color: #fff; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .header { background: var(--primary); color: #fff; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.3); position: sticky; top: 0; z-index: 900; }
         .wrapper { display: flex; }
-        .sidebar { width: 240px; background: var(--secondary); min-height: 100vh; color: #fff; }
-        .sidebar h3 { text-align: center; padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); margin: 0; }
+        .sidebar { width: 240px; background: var(--secondary); min-height: calc(100vh - 60px); color: #fff; }
+        .sidebar h3 { text-align: center; padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); margin: 0; font-size: 1.1rem; }
         .sidebar a { display: block; padding: 15px 20px; color: #adb5bd; cursor: pointer; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,0.05); transition: 0.3s; }
-        .sidebar a:hover { background: var(--primary); color: #fff; }
+        .sidebar a:hover { background: var(--primary); color: #fff; padding-left: 30px; }
         .content { flex: 1; padding: 30px; }
 
         /* UI Components */
-        .card { background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); margin-bottom: 20px; }
+        .card { background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); margin-bottom: 20px; }
         .hidden { display: none; }
-        input, select, textarea { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
-        button { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; transition: 0.2s; }
+        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+        button { padding: 12px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; transition: 0.2s; }
         .btn-main { background: var(--primary); color: white; }
         .btn-green { background: var(--success); color: white; }
         .btn-red { background: var(--danger); color: white; }
@@ -34,12 +37,12 @@
         .passport-thumb { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); cursor: pointer; }
 
         /* Modal & Report Card */
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; justify-content: center; overflow-y: auto; z-index: 1000; padding: 20px 0; }
-        .modal-content { background: #fff; width: 95%; max-width: 1000px; padding: 30px; border-radius: 12px; position: relative; align-self: flex-start; }
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; justify-content: center; overflow-y: auto; z-index: 1000; padding: 20px; }
+        .modal-content { background: #fff; width: 95%; max-width: 1000px; padding: 30px; border-radius: 12px; position: relative; align-self: flex-start; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
         .close-btn { position: absolute; top: 15px; right: 20px; font-size: 28px; cursor: pointer; color: #666; }
         
-        .report-card-ui { border: 2px solid #333; padding: 20px; margin-top: 20px; background: #fff; }
-        .score-input { width: 60px; text-align: center; font-weight: bold; padding: 5px; border: 1px solid #ccc; }
+        .report-card-ui { border: 2px solid #333; padding: 20px; margin-top: 20px; background: #fff; color: #333; }
+        .score-input { width: 65px; text-align: center; font-weight: bold; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
         .low-score { color: var(--danger); border-color: var(--danger); background: #fff5f5; }
         .high-score { color: var(--success); border-color: var(--success); background: #f5fff5; }
         .total-cell { font-weight: bold; background: #f0f0f0; }
@@ -49,22 +52,25 @@
 <body>
 
 <div class="header">
-    <h2>CRESCENT HEIGHTS OYO - ADMIN</h2>
+    <div style="display:flex; align-items:center; gap:10px;">
+        <img src="Card.png" style="height:40px;" onerror="this.style.display='none'">
+        <h2 style="font-size: 1.2rem;">CRESCENT HEIGHTS OYO - ADMIN</h2>
+    </div>
     <button class="btn-red" onclick="location.reload()">Refresh Portal</button>
 </div>
 
 <div class="wrapper">
     <div class="sidebar">
         <h3>TEACHER MENU</h3>
-        <a onclick="showSection('dashboard')">Dashboard</a>
-        <a onclick="showSection('manage')">Student Profiles</a>
-        <a onclick="showSection('create')">New Registration</a>
+        <a onclick="showSection('dashboard')">📊 Dashboard</a>
+        <a onclick="showSection('manage')">👥 Student Profiles</a>
+        <a onclick="showSection('create')">➕ New Registration</a>
     </div>
 
     <div class="content">
         <div id="dashboard" class="card">
-            <h3>School Overview</h3>
-            <p>Total Registered Students: <b id="statCount">0</b></p>
+            <h3 style="color:var(--primary)">School Overview</h3>
+            <p style="margin: 10px 0;">Total Registered Students: <b id="statCount" style="font-size: 1.5rem; color: var(--primary);">0</b></p>
             <canvas id="mainChart" style="max-height: 300px;"></canvas>
         </div>
 
@@ -95,8 +101,8 @@
                 <option>SS1</option><option>SS2</option><option>SS3</option>
             </select>
             <label>Passport Photograph</label>
-            <input type="file" id="regFile" accept="image/*">
-            <button class="btn-main" onclick="handleRegistration()">Upload & Save Student</button>
+            <input type="file" id="regFile" accept="image/*" style="border:none; padding-left:0;">
+            <button class="btn-main" style="width:100%; margin-top:15px;" id="regBtn" onclick="handleRegistration()">Upload & Save Student</button>
         </div>
     </div>
 </div>
@@ -112,11 +118,14 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    // --- CONFIGURATION ---
+    // --- FIREBASE CONFIGURATION ---
     const firebaseConfig = {
-        apiKey: "YOUR_API_KEY",
+        apiKey: "AIzaSyDyGAAiybGdSQZvsJnzK46fUtCMmcVwhP0",
         authDomain: "crescent-heights-oyo.firebaseapp.com",
         projectId: "crescent-heights-oyo",
+        storageBucket: "crescent-heights-oyo.firebasestorage.app",
+        messagingSenderId: "1067062273531",
+        appId: "1:1067062273531:web:c90a74569e8fb2d18c175e"
     };
 
     const app = initializeApp(firebaseConfig);
@@ -137,13 +146,16 @@
         const name = document.getElementById('regName').value;
         const sClass = document.getElementById('regClass').value;
         const file = document.getElementById('regFile').files[0];
+        const btn = document.getElementById('regBtn');
 
-        if(!name || !file) return alert("Please fill all fields");
+        if(!name || !file) return alert("Please fill all fields and select a photo.");
 
-        // Cloudinary Upload
+        btn.innerText = "Processing... Please wait";
+        btn.disabled = true;
+
         const formData = new FormData();
         formData.append("file", file);
-        formData.append("upload_preset", "cho_students_upload"); // Ensure this is "Unsigned" in Cloudinary
+        formData.append("upload_preset", "cho_students_upload"); 
 
         try {
             const res = await fetch("https://api.cloudinary.com/v1_1/dbl5rshwi/image/upload", { method: "POST", body: formData });
@@ -154,14 +166,19 @@
                 class: sClass,
                 passport: data.secure_url,
                 matric: "CHO-" + Math.floor(1000 + Math.random() * 9000),
-                results: {} // Structure: { [class]: { [term]: { subjects... } } }
+                results: {} 
             });
 
             alert("Student Registered Successfully!");
+            document.getElementById('regName').value = "";
+            document.getElementById('regFile').value = "";
             showSection('manage');
         } catch (e) {
             console.error(e);
             alert("Error during registration.");
+        } finally {
+            btn.innerText = "Upload & Save Student";
+            btn.disabled = false;
         }
     };
 
@@ -170,11 +187,23 @@
         const snap = await getDocs(collection(db, "students"));
         allStudents = [];
         const tbody = document.getElementById('studentBody');
-        tbody.innerHTML = "";
+        tbody.innerHTML = "<tr><td colspan='5'>Loading Students...</td></tr>";
         
+        let tempStudents = [];
         snap.forEach(d => {
             const s = { id: d.id, ...d.data() };
-            allStudents.push(s);
+            tempStudents.push(s);
+        });
+        
+        allStudents = tempStudents;
+        renderTable(allStudents);
+        document.getElementById('statCount').innerText = allStudents.length;
+    };
+
+    function renderTable(data) {
+        const tbody = document.getElementById('studentBody');
+        tbody.innerHTML = "";
+        data.forEach(s => {
             tbody.innerHTML += `
                 <tr>
                     <td><img src="${s.passport}" class="passport-thumb" onclick="openProfile('${s.id}')"></td>
@@ -182,11 +211,16 @@
                     <td>${s.class}</td>
                     <td><code>${s.matric}</code></td>
                     <td>
-                        <button class="btn-main" onclick="openProfile('${s.id}')">View/Add Results</button>
+                        <button class="btn-main" onclick="openProfile('${s.id}')">Manage Results</button>
                     </td>
                 </tr>`;
         });
-        document.getElementById('statCount').innerText = allStudents.length;
+    }
+
+    window.filterStudents = () => {
+        const term = document.getElementById('searchBar').value.toLowerCase();
+        const filtered = allStudents.filter(s => s.name.toLowerCase().includes(term) || s.matric.toLowerCase().includes(term));
+        renderTable(filtered);
     };
 
     // --- PROFILE & DYNAMIC REPORT CARD ---
@@ -197,49 +231,47 @@
 
         container.innerHTML = `
             <div style="display:flex; gap:25px; align-items:center; border-bottom: 2px solid #eee; padding-bottom: 20px;">
-                <img src="${s.passport}" style="width:130px; height:130px; border-radius:8px; object-fit:cover; border:3px solid #0b3c5d;">
+                <img src="${s.passport}" style="width:130px; height:130px; border-radius:12px; object-fit:cover; border:3px solid #0b3c5d;">
                 <div style="flex:1">
                     <h1 style="margin:0; color:#0b3c5d;">${s.name}</h1>
-                    <p><b>ID:</b> ${s.matric} | <b>Class:</b> ${s.class}</p>
-                    <div style="display:flex; gap:10px;">
+                    <p><b>ID:</b> ${s.matric} | <b>Reg Class:</b> ${s.class}</p>
+                    <div style="display:flex; gap:10px; margin-top:10px;">
                         <select id="selTerm" style="width:150px"><option>1st Term</option><option>2nd Term</option><option>3rd Term</option></select>
                         <select id="selClass" style="width:120px">
-                            <option ${s.class=='JSS1'?'selected':''}>JSS1</option><option ${s.class=='JSS2'?'selected':''}>JSS2</option>
-                            <option ${s.class=='JSS3'?'selected':''}>JSS3</option><option ${s.class=='SS1'?'selected':''}>SS1</option>
-                            <option ${s.class=='SS2'?'selected':''}>SS2</option><option ${s.class=='SS3'?'selected':''}>SS3</option>
+                            <option>JSS1</option><option>JSS2</option><option>JSS3</option>
+                            <option>SS1</option><option>SS2</option><option>SS3</option>
                         </select>
-                        <button class="btn-green" onclick="generateReportUI('${id}')">Open Digital Card</button>
+                        <button class="btn-green" onclick="generateReportUI('${id}')">Load/Edit Digital Card</button>
                     </div>
                 </div>
                 <div style="text-align:right">
-                    <button class="btn-red" onclick="deleteStudent('${id}')">Delete Student</button>
+                    <button class="btn-red" style="font-size:0.8rem; padding:8px;" onclick="deleteStudent('${id}')">Delete Profile</button>
                 </div>
             </div>
             <div id="reportUI"></div>
         `;
     };
 
-    window.generateReportUI = async (id) => {
+    window.generateReportUI = (id) => {
         const s = allStudents.find(x => x.id === id);
         const term = document.getElementById('selTerm').value;
         const cls = document.getElementById('selClass').value;
         const existing = s.results?.[cls]?.[term] || {};
 
-        const subjects = ["Mathematics", "English Language", "Basic Science", "Social Studies", "Agric Science", "Civic Education", "ICT", "P.H.E", "Business Studies"];
+        const subjects = ["Mathematics", "English Language", "Basic Science", "Social Studies", "Agric Science", "Civic Education", "ICT", "P.H.E", "Business Studies", "Yoruba Language"];
 
         document.getElementById('reportUI').innerHTML = `
             <div class="report-card-ui">
-                <div style="text-align:center;">
-                    <img src="Card.png" style="width:80px;" onerror="this.src='https://via.placeholder.com/80?text=LOGO'">
-                    <h2 style="margin:5px 0;">CRESCENT HEIGHTS, OYO</h2>
-                    <p><b>STUDENT REPORT CARD - ${cls} (${term})</b></p>
+                <div style="text-align:center; margin-bottom:15px;">
+                    <h3 style="margin:0;">STUDENT REPORT CARD</h3>
+                    <p style="color:#666">${cls} - ${term}</p>
                 </div>
                 
-                <div style="display:flex; gap:20px;">
-                    <div style="flex:2">
+                <div style="display:flex; gap:20px; flex-wrap:wrap;">
+                    <div style="flex:2; min-width:300px;">
                         <table>
                             <thead>
-                                <tr><th>SUBJECTS</th><th>CA (30)</th><th>EXAM (70)</th><th>TOTAL</th></tr>
+                                <tr><th>SUBJECTS</th><th>C.A (30)</th><th>EXAM (70)</th><th>TOTAL</th></tr>
                             </thead>
                             <tbody>
                                 ${subjects.map(sub => {
@@ -248,31 +280,33 @@
                                     return `
                                     <tr>
                                         <td class="subject-name">${sub}</td>
-                                        <td><input type="number" class="score-input ca-in" data-sub="${sub}" value="${score.ca}" oninput="checkMark(this, 15)"></td>
-                                        <td><input type="number" class="score-input ex-in" data-sub="${sub}" value="${score.ex}" oninput="checkMark(this, 35)"></td>
+                                        <td><input type="number" class="score-input ca-in" data-sub="${sub}" value="${score.ca}" oninput="checkMark(this, 31)"></td>
+                                        <td><input type="number" class="score-input ex-in" data-sub="${sub}" value="${score.ex}" oninput="checkMark(this, 71)"></td>
                                         <td class="total-cell">${total}</td>
                                     </tr>`;
                                 }).join('')}
                             </tbody>
                         </table>
                     </div>
-                    <div style="flex:1; border-left:1px solid #ddd; padding-left:20px;">
+                    <div style="flex:1; min-width:250px; background:#f9f9f9; padding:15px; border-radius:8px;">
                         <h4>Affective Domain (1-5)</h4>
-                        <p>Punctuality: <input type="number" id="affPunct" value="${existing.punctuality || ''}" min="1" max="5"></p>
-                        <p>Neatness: <input type="number" id="affNeat" value="${existing.neatness || ''}" min="1" max="5"></p>
+                        <div style="margin:10px 0;">
+                            <label>Punctuality</label><input type="number" id="affPunct" value="${existing.punctuality || ''}" min="1" max="5">
+                            <label>Neatness</label><input type="number" id="affNeat" value="${existing.neatness || ''}" min="1" max="5">
+                        </div>
                         <hr>
                         <h4>Remarks</h4>
-                        <textarea id="remarkText" placeholder="Enter Teacher's Comment">${existing.remark || ''}</textarea>
-                        <button class="btn-green" style="width:100%; height:50px; margin-top:15px;" onclick="saveResultData('${id}', '${cls}', '${term}')">SAVE REPORT CARD</button>
+                        <textarea id="remarkText" style="height:100px;">${existing.remark || ''}</textarea>
+                        <button class="btn-green" style="width:100%; margin-top:15px;" id="saveBtn" onclick="saveResultData('${id}', '${cls}', '${term}')">💾 SAVE REPORT CARD</button>
                     </div>
                 </div>
             </div>
         `;
     };
 
-    window.checkMark = (el, min) => {
+    window.checkMark = (el, max) => {
         const val = parseFloat(el.value) || 0;
-        el.className = val < min ? "score-input low-score" : "score-input high-score";
+        if(val >= max) { el.value = max-1; alert("Value exceeds maximum!"); }
         
         const row = el.closest('tr');
         const ca = parseFloat(row.querySelector('.ca-in').value) || 0;
@@ -281,6 +315,10 @@
     };
 
     window.saveResultData = async (id, cls, term) => {
+        const saveBtn = document.getElementById('saveBtn');
+        saveBtn.innerText = "Saving...";
+        saveBtn.disabled = true;
+
         const docRef = doc(db, "students", id);
         const snap = await getDoc(docRef);
         const currentData = snap.data();
@@ -301,14 +339,22 @@
         if(!allResults[cls]) allResults[cls] = {};
         allResults[cls][term] = resObj;
 
-        await updateDoc(docRef, { results: allResults });
-        alert("Report card successfully updated and saved to Cloud Database!");
-        closeModal();
-        loadStudents();
+        try {
+            await updateDoc(docRef, { results: allResults });
+            alert("Success: Result saved to database!");
+            closeModal();
+            loadStudents();
+        } catch (err) {
+            console.error(err);
+            alert("Error saving result.");
+        } finally {
+            saveBtn.innerText = "💾 SAVE REPORT CARD";
+            saveBtn.disabled = false;
+        }
     };
 
     window.deleteStudent = async (id) => {
-        if(confirm("Delete this student forever?")) {
+        if(confirm("Are you sure? This will delete the student and all their results forever.")) {
             await deleteDoc(doc(db, "students", id));
             closeModal();
             loadStudents();
