@@ -1,218 +1,303 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Crescent Heights Oyo – Student Portal</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crescent Heights Oyo – Student Portal</title>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<style>
-body{
-  font-family:Arial,sans-serif;
-  background:#162539;
-  color:#fff;
-  text-align:center;
-  padding:30px;
-}
-.container{
-  background:#fff;
-  color:#000;
-  padding:25px;
-  border-radius:8px;
-  max-width:600px;
-  margin:auto;
-}
-input,button{
-  width:100%;
-  padding:10px;
-  margin:8px 0;
-  border-radius:4px;
-  border:1px solid #ccc;
-}
-button{
-  background:#0b3c5d;
-  color:#fff;
-  border:none;
-  cursor:pointer;
-}
-button:hover{background:#145a86}
-table{
-  width:100%;
-  border-collapse:collapse;
-  margin-top:15px;
-}
-th,td{
-  border:1px solid #ccc;
-  padding:8px;
-  text-align:center;
-}
-th{background:#0b3c5d;color:#fff}
-img{width:120px;border-radius:6px;margin:10px 0;}
-</style>
+    <style>
+        :root { --primary: #0b3c5d; --secondary: #162539; --accent: #27ae60; --danger: #e74c3c; --bg-light: #f8f9fa; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--secondary); color: #fff; margin: 0; padding: 0; }
+        
+        /* Navbar */
+        .navbar { background: var(--primary); padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        .nav-logo { font-size: 1.5rem; font-weight: bold; letter-spacing: 1px; }
+
+        .container { max-width: 1100px; margin: 30px auto; padding: 0 20px; }
+
+        /* Login Styling */
+        .login-card { background: #fff; color: #333; padding: 40px; border-radius: 15px; max-width: 400px; margin: 80px auto; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border-top: 6px solid var(--primary); }
+        
+        /* Dashboard Styling */
+        .card { background: #fff; color: #333; padding: 25px; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .profile-header { display: flex; align-items: center; gap: 25px; border-bottom: 1px solid #eee; padding-bottom: 20px; margin-bottom: 20px; }
+        .profile-img { width: 120px; height: 120px; border-radius: 15px; border: 4px solid var(--primary); object-fit: cover; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        
+        /* Stats Grid */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 10px; }
+        .stat-item { background: var(--bg-light); padding: 20px; border-radius: 10px; text-align: center; border-bottom: 4px solid var(--primary); transition: 0.3s; }
+        .stat-item:hover { transform: translateY(-5px); }
+        .stat-item h4 { margin: 0; color: #777; font-size: 0.8rem; text-transform: uppercase; }
+        .stat-item p { margin: 8px 0 0; font-size: 1.8rem; font-weight: bold; color: var(--primary); }
+
+        /* UI Elements */
+        input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 1rem; }
+        button { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        button:hover { background: #145a86; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        .btn-download { background: var(--accent); margin-top: 15px; }
+        .hidden { display: none; }
+
+        /* Results Table */
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; border-radius: 8px; overflow: hidden; }
+        th, td { padding: 14px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #f1f4f6; color: var(--primary); font-weight: bold; }
+        .low-score { color: var(--danger); font-weight: bold; }
+        .high-score { color: var(--accent); font-weight: bold; }
+    </style>
 </head>
-
 <body>
 
-<h2>Crescent Heights Oyo – Student Portal</h2>
+<nav class="navbar">
+    <div class="nav-logo">CRESCENT HEIGHTS PORTAL</div>
+    <div id="navUser" class="hidden">
+        <button onclick="location.reload()" style="background:var(--danger); width:auto; padding:5px 15px;">Log Out</button>
+    </div>
+</nav>
 
 <div class="container">
+    <div id="loginArea" class="login-card">
+        <img src="Card.png" style="width: 100px; margin-bottom: 15px;" onerror="this.src='https://via.placeholder.com/100?text=LOGO'">
+        <h2>Student Login</h2>
+        <p>Access your digital result and performance analytics.</p>
+        <input type="text" id="matricInput" placeholder="Enter Matric Number (e.g. CHO-1234)">
+        <button onclick="portalLogin()">Sign In</button>
+    </div>
 
-<input id="matricInput" placeholder="Enter Matric Number">
-<button onclick="checkResult()">Check Result</button>
+    <div id="portalDashboard" class="hidden">
+        
+        <div class="card">
+            <div class="profile-header">
+                <img id="userPassport" class="profile-img" src="">
+                <div style="flex:1">
+                    <h1 id="userName" style="margin:0; color:var(--primary);"></h1>
+                    <p id="userID" style="margin:5px 0; color:#666; font-weight: 500;"></p>
+                    <span id="userCurrentClass" style="background:var(--primary); color:white; padding:4px 12px; border-radius:20px; font-size:0.85rem;"></span>
+                </div>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-item"><h4>Overall Avg</h4><p id="statAvg">0%</p></div>
+                <div class="stat-item"><h4>Total Exams</h4><p id="statCount">0</p></div>
+                <div class="stat-item"><h4>Academic Status</h4><p id="statStatus">--</p></div>
+            </div>
+        </div>
 
-<div id="resultArea" style="display:none; margin-top:20px;">
+        <div class="card">
+            <h3>Check My Result</h3>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <div style="flex:1">
+                    <label style="font-size: 0.8rem; font-weight: bold;">SELECT CLASS</label>
+                    <select id="viewClass">
+                        <option>JSS1</option><option>JSS2</option><option>JSS3</option>
+                        <option>SS1</option><option>SS2</option><option>SS3</option>
+                    </select>
+                </div>
+                <div style="flex:1">
+                    <label style="font-size: 0.8rem; font-weight: bold;">SELECT TERM</label>
+                    <select id="viewTerm">
+                        <option>1st Term</option><option>2nd Term</option><option>3rd Term</option>
+                    </select>
+                </div>
+                <button onclick="displayResult()" style="width: 180px; align-self: flex-end; height: 46px;">Fetch Result</button>
+            </div>
 
-<h3 id="studentName"></h3>
-<p id="studentClass"></p>
-<p id="studentSession"></p>
-<img id="studentPassport">
-<table id="resultTable"></table>
+            <div id="resultBox" class="hidden">
+                <table>
+                    <thead>
+                        <tr><th>Subject</th><th>C.A (30)</th><th>Exam (70)</th><th>Total (100)</th></tr>
+                    </thead>
+                    <tbody id="resultBody"></tbody>
+                </table>
+                <div style="background:#f8f9fa; padding:15px; border-radius:8px; margin-top:15px; border-left: 5px solid var(--primary);">
+                    <p><b>Teacher's Comment:</b> <span id="teacherNote"></span></p>
+                </div>
+                <button class="btn-download" onclick="generatePDF()">Download Report Card (PDF)</button>
+            </div>
 
-<button onclick="printPDF()" style="margin-top:15px;">Print Result (PDF)</button>
+            <div id="noData" class="hidden" style="text-align:center; padding:40px; color:#999; border: 2px dashed #eee; border-radius: 10px; margin-top: 20px;">
+                No result record found for the selected session.
+            </div>
+        </div>
 
-</div>
+        <div class="card">
+            <h3>Subject Performance Visualizer</h3>
+            <canvas id="gradeChart" style="max-height: 320px;"></canvas>
+        </div>
+
+    </div>
 </div>
 
 <script type="module">
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+// Your Specific Firebase Credentials
 const firebaseConfig = {
   apiKey: "AIzaSyDyGAAiybGdSQZvsJnzK46fUtCMmcVwhP0",
   authDomain: "crescent-heights-oyo.firebaseapp.com",
   projectId: "crescent-heights-oyo",
+  storageBucket: "crescent-heights-oyo.firebasestorage.app",
+  messagingSenderId: "1067062273531",
+  appId: "1:1067062273531:web:c90a74569e8fb2d18c175e",
+  measurementId: "G-G4CXEX6J8G"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-let currentStudent=null;
+let activeUser = null;
+let activeChart = null;
 
-window.checkResult = async function(){
-  const matric = matricInput.value.trim();
-  if(!matric) return alert("Enter matric number");
+// --- Login & Cloudinary Image Optimization ---
+window.portalLogin = async () => {
+    const matric = document.getElementById('matricInput').value.trim();
+    if(!matric) return alert("Matric number required");
 
-  const q = query(collection(db,"students"), where("matric","==",matric));
-  const snapshot = await getDocs(q);
+    const q = query(collection(db, "students"), where("matric", "==", matric));
+    const snap = await getDocs(q);
 
-  if(snapshot.empty) return alert("Student not found");
+    if(snap.empty) return alert("Student not found. Check your matric number.");
 
-  snapshot.forEach(docSnap=>{
-    const s = docSnap.data();
-    currentStudent = s;
+    snap.forEach(doc => { activeUser = { id: doc.id, ...doc.data() }; });
 
-    studentName.innerText = s.name;
-    studentClass.innerText = "Class: "+s.class;
-    studentSession.innerText = s.term+" | "+s.session;
-    studentPassport.src = s.passport;
+    // Cloudinary URL Optimization: Face-centered crop + Auto quality
+    const optimizedImg = activeUser.passport.replace("/upload/", "/upload/c_fill,g_face,w_300,h_300,q_auto,f_auto/");
+    
+    document.getElementById('loginArea').classList.add('hidden');
+    document.getElementById('portalDashboard').classList.remove('hidden');
+    document.getElementById('navUser').classList.remove('hidden');
 
-    resultTable.innerHTML="<tr><th>Subject</th><th>Score</th></tr>";
-    s.results.forEach(r=>{
-      resultTable.innerHTML+=`
-      <tr>
-        <td>${r.subject}</td>
-        <td>${r.score}</td>
-      </tr>`;
+    document.getElementById('userName').innerText = activeUser.name;
+    document.getElementById('userID').innerText = "Matric: " + activeUser.matric;
+    document.getElementById('userCurrentClass').innerText = activeUser.class;
+    document.getElementById('userPassport').src = optimizedImg;
+
+    updateDashboardStats();
+};
+
+function updateDashboardStats() {
+    const results = activeUser.results || {};
+    let totalScore = 0, count = 0;
+
+    Object.values(results).forEach(cls => {
+        Object.values(cls).forEach(term => {
+            Object.values(term).forEach(s => {
+                if(s.ca) { totalScore += (Number(s.ca) + Number(s.ex)); count++; }
+            });
+        });
     });
 
-    resultArea.style.display="block";
-  });
+    const avg = count > 0 ? (totalScore / count).toFixed(1) : 0;
+    document.getElementById('statAvg').innerText = avg + "%";
+    document.getElementById('statCount').innerText = count;
+    document.getElementById('statStatus').innerText = avg >= 45 ? "Good Standing" : "Needs Help";
 }
 
-function calculateAverage(results){
-  if(!results.length) return 0;
-  return (results.reduce((a,b)=>a+b.score,0)/results.length).toFixed(1);
+// --- Result Table & Chart Rendering ---
+window.displayResult = () => {
+    const cls = document.getElementById('viewClass').value;
+    const term = document.getElementById('viewTerm').value;
+    const data = activeUser.results?.[cls]?.[term];
+
+    const box = document.getElementById('resultBox');
+    const empty = document.getElementById('noData');
+    const tbody = document.getElementById('resultBody');
+
+    if(!data) { box.classList.add('hidden'); empty.classList.remove('hidden'); return; }
+
+    empty.classList.add('hidden');
+    box.classList.remove('hidden');
+    tbody.innerHTML = "";
+
+    const labels = [], scores = [];
+    Object.entries(data).forEach(([subject, val]) => {
+        if(val.ca) {
+            const total = Number(val.ca) + Number(val.ex);
+            tbody.innerHTML += `<tr>
+                <td><b>${subject}</b></td>
+                <td>${val.ca}</td>
+                <td>${val.ex}</td>
+                <td class="${total < 40 ? 'low-score' : 'high-score'}">${total}</td>
+            </tr>`;
+            labels.push(subject);
+            scores.push(total);
+        }
+    });
+
+    document.getElementById('teacherNote').innerText = data.remark || "No feedback recorded.";
+    renderPerformanceChart(labels, scores);
+};
+
+function renderPerformanceChart(labels, data) {
+    const ctx = document.getElementById('gradeChart').getContext('2d');
+    if(activeChart) activeChart.destroy();
+    activeChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Score (out of 100)',
+                data: data,
+                backgroundColor: '#0b3c5d',
+                borderRadius: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: { y: { beginAtZero: true, max: 100 } }
+        }
+    });
 }
 
-function grade(avg){
-  if(avg>=70) return "A";
-  if(avg>=60) return "B";
-  if(avg>=50) return "C";
-  if(avg>=45) return "D";
-  return "F";
-}
+// --- PDF Generation ---
+window.generatePDF = () => {
+    const cls = document.getElementById('viewClass').value;
+    const term = document.getElementById('viewTerm').value;
+    const data = activeUser.results[cls][term];
 
-function remark(avg){
-  if(avg>=70) return "Excellent";
-  if(avg>=60) return "Very Good";
-  if(avg>=50) return "Good";
-  if(avg>=45) return "Pass";
-  return "Fail";
-}
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
 
-window.printPDF = async function(){
+    // Official School Header
+    doc.setFontSize(22);
+    doc.setTextColor(11, 60, 93);
+    doc.text("CRESCENT HEIGHTS, OYO", 105, 20, { align: 'center' });
+    
+    doc.setFontSize(10);
+    doc.setTextColor(100);
+    doc.text("Official Academic Progress Report Sheet", 105, 27, { align: 'center' });
 
-  if(!currentStudent) return alert("No result loaded");
+    doc.line(20, 35, 190, 35);
+    
+    // Student Info
+    doc.setFontSize(11);
+    doc.setTextColor(0);
+    doc.text(`NAME: ${activeUser.name.toUpperCase()}`, 20, 45);
+    doc.text(`MATRIC: ${activeUser.matric}`, 20, 52);
+    doc.text(`LEVEL: ${cls} | TERM: ${term}`, 20, 59);
 
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
+    const tableRows = [];
+    Object.entries(data).forEach(([sub, val]) => {
+        if(val.ca) tableRows.push([sub, val.ca, val.ex, Number(val.ca) + Number(val.ex)]);
+    });
 
-  let y = 20;
+    doc.autoTable({
+        startY: 65,
+        head: [['SUBJECT', 'CA (30)', 'EXAM (70)', 'TOTAL (100)']],
+        body: tableRows,
+        theme: 'grid',
+        headStyles: { fillColor: [11, 60, 93] }
+    });
 
-  // ADD WATERMARK
-  try {
-    const watermarkImg = await fetch("A_digital_graphic_design_features_the_Crescent_Hei.png")
-      .then(res => res.blob())
-      .then(blob => new Promise(resolve => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.readAsDataURL(blob);
-      }));
-
-    // Use semi-transparent watermark
-    doc.setGState(new doc.GState({ opacity: 0.1 }));
-    doc.addImage(watermarkImg, "PNG", 35, 80, 140, 140, undefined, "FAST");
-    doc.setGState(new doc.GState({ opacity: 1 }));
-  } catch(e){
-    console.log("Watermark not loaded", e);
-  }
-
-  // SCHOOL HEADER
-  doc.setFontSize(16);
-  doc.text("Crescent Heights Oyo", 60, y);
-  y+=10;
-  doc.setFontSize(12);
-  doc.text("Student Result Slip", 75, y);
-  y+=15;
-
-  // STUDENT INFO
-  doc.text("Name: "+currentStudent.name,20,y); y+=8;
-  doc.text("Matric: "+currentStudent.matric,20,y); y+=8;
-  doc.text("Class: "+currentStudent.class,20,y); y+=8;
-  doc.text("Session: "+currentStudent.session,20,y); y+=15;
-
-  // PASSPORT
-  try{
-    const img = await fetch(currentStudent.passport)
-      .then(res=>res.blob())
-      .then(blob=>new Promise(resolve=>{
-        const reader=new FileReader();
-        reader.onload=()=>resolve(reader.result);
-        reader.readAsDataURL(blob);
-      }));
-    doc.addImage(img,"JPEG",150,20,40,40);
-  }catch(e){}
-
-  // TABLE
-  doc.text("Subjects & Scores:",20,y);
-  y+=10;
-
-  currentStudent.results.forEach(r=>{
-    doc.text(r.subject+" - "+r.score,25,y);
-    y+=8;
-  });
-
-  // AVERAGE + GRADE
-  const avg = calculateAverage(currentStudent.results);
-  y+=10;
-  doc.text("Average: "+avg,20,y); y+=8;
-  doc.text("Grade: "+grade(avg),20,y); y+=8;
-  doc.text("Remark: "+remark(avg),20,y);
-
-  doc.save(currentStudent.name+"_Result.pdf");
-
-}
+    const finalPos = doc.lastAutoTable.finalY + 15;
+    doc.text(`Teacher's Comment: ${data.remark || 'N/A'}`, 20, finalPos);
+    
+    doc.save(`${activeUser.name}_${cls}_Report.pdf`);
+};
 
 </script>
 </body>
