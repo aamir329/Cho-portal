@@ -2,112 +2,238 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crescent Heights Oyo – Teacher Portal</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Crescent Heights Admin</title>
     <style>
-        /* CSS RESET - ELIMINATES WHITE GAPS */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
-        :root { --primary: #0b3c5d; --secondary: #082c44; --bg: #162539; --success: #27ae60; --danger: #c0392b; }
-        body { font-family: "Segoe UI", sans-serif; background: var(--bg); color: #333; height: 100vh; overflow: hidden; }
-        
-        /* Layout */
-        .header { background: var(--primary); color: #fff; padding: 0 25px; height: 60px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.3); position: relative; z-index: 10; }
-        .wrapper { display: flex; height: calc(100vh - 60px); }
-        .sidebar { width: 240px; background: var(--secondary); color: #fff; flex-shrink: 0; }
-        .sidebar h3 { text-align: center; padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); margin: 0; font-size: 1rem; }
-        .sidebar a { display: block; padding: 15px 20px; color: #adb5bd; cursor: pointer; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,0.05); transition: 0.3s; }
-        .sidebar a:hover { background: var(--primary); color: #fff; padding-left: 30px; }
-        .content { flex: 1; padding: 30px; overflow-y: auto; }
+        :root { 
+            --primary: #0b3c5d; 
+            --secondary: #162539; 
+            --accent: #27ae60; 
+            --danger: #e74c3c; 
+            --text-light: #ffffff;
+            --card-bg: #ffffff;
+        }
 
-        /* UI Components */
-        .card { background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); margin-bottom: 20px; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            background-color: var(--secondary); 
+            color: #333;
+            line-height: 1.5;
+        }
+
+        /* Fixed Top Navigation */
+        .top-nav {
+            background: var(--primary);
+            color: white;
+            padding: 12px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .top-nav h1 { font-size: 1rem; font-weight: bold; }
+
+        /* Bottom Navigation for Mobile */
+        .bottom-tabs {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: #fff;
+            display: flex;
+            border-top: 1px solid #ddd;
+            z-index: 1000;
+        }
+
+        .tab-item {
+            flex: 1;
+            text-align: center;
+            padding: 12px 5px;
+            font-size: 0.75rem;
+            color: #666;
+            cursor: pointer;
+        }
+
+        .tab-item.active { color: var(--primary); font-weight: bold; border-top: 3px solid var(--primary); }
+
+        /* Content Area */
+        .container { padding: 15px; padding-bottom: 80px; }
+        .card { 
+            background: var(--card-bg); 
+            border-radius: 12px; 
+            padding: 20px; 
+            margin-bottom: 20px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
+        }
+
         .hidden { display: none !important; }
-        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 14px; }
-        button { padding: 12px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; transition: 0.2s; }
-        .btn-main { background: var(--primary); color: white; }
-        .btn-green { background: var(--success); color: white; }
-        .btn-red { background: var(--danger); color: white; }
 
-        /* Table Styles */
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px; }
-        th, td { border: 1px solid #eee; padding: 10px; text-align: center; }
-        th { background: #f8f9fa; color: var(--primary); }
-        .passport-thumb { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); }
+        /* Mobile Student List */
+        .student-row {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: #fff;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            gap: 15px;
+        }
 
-        /* Modal - CRITICAL FIX */
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; justify-content: center; overflow-y: auto; z-index: 2000; padding: 20px; }
-        .modal-content { background: #fff; width: 100%; max-width: 1000px; padding: 30px; border-radius: 12px; position: relative; align-self: flex-start; }
-        .close-btn { position: absolute; top: 15px; right: 20px; font-size: 28px; cursor: pointer; color: #666; }
+        .passport { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); }
+        .student-info { flex: 1; }
+        .student-info h4 { margin: 0; font-size: 0.95rem; }
+        .student-info p { margin: 0; font-size: 0.8rem; color: #777; }
+
+        /* Result Entry Form (The "Card" Design) */
+        .subject-card {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            border-left: 5px solid var(--primary);
+        }
+
+        .subject-card h4 { margin-bottom: 10px; color: var(--primary); font-size: 0.9rem; }
+        .input-row { display: flex; gap: 10px; }
+        .input-group { flex: 1; }
+        .input-group label { display: block; font-size: 0.7rem; color: #666; margin-bottom: 4px; }
         
-        /* Report Card Grid */
-        .report-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-top: 20px; }
-        .score-input { width: 55px; text-align: center; font-weight: bold; padding: 5px; border: 1px solid #ccc; border-radius: 4px; }
-        .grading-key { background: #f4f4f4; padding: 10px; border-radius: 6px; font-size: 11px; margin-top: 10px; }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-success { background: var(--accent); color: white; }
+
+        /* Modal for Mobile */
+        .full-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            z-index: 2000;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
+        }
     </style>
 </head>
 <body>
 
-<div class="header">
-    <div style="display:flex; align-items:center; gap:10px;">
-        <h2 style="font-size: 1.1rem;">CRESCENT HEIGHTS OYO - TEACHER ADMIN</h2>
-    </div>
-    <button class="btn-red" style="padding: 5px 15px;" onclick="location.reload()">Refresh</button>
+<div class="top-nav">
+    <h1>CRESCENT HEIGHTS ADMIN</h1>
+    <span style="font-size: 0.8rem;" id="liveStatus">● Online</span>
 </div>
 
-<div class="wrapper">
-    <div class="sidebar">
-        <h3>ACADEMIC CONTROL</h3>
-        <a onclick="showSection('dashboard')">📊 Dashboard</a>
-        <a onclick="showSection('manage')">👥 Student Profiles</a>
-        <a onclick="showSection('create')">➕ New Registration</a>
+<div class="container">
+    <div id="dashSec" class="card">
+        <h2 style="font-size: 1.2rem;">Welcome, Teacher</h2>
+        <p style="font-size: 0.9rem; color: #666;">Manage students and process terminal reports.</p>
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <div style="flex:1; background: #eef2f5; padding: 15px; border-radius: 8px; text-align: center;">
+                <p style="font-size: 0.7rem; color: #777;">STUDENTS</p>
+                <b id="countVal" style="font-size: 1.5rem; color: var(--primary);">0</b>
+            </div>
+            <div style="flex:1; background: #eef2f5; padding: 15px; border-radius: 8px; text-align: center;">
+                <p style="font-size: 0.7rem; color: #777;">TERM</p>
+                <b style="font-size: 1.1rem; color: var(--primary);">2025/26</b>
+            </div>
+        </div>
     </div>
 
-    <div class="content">
-        <div id="dashboard" class="card">
-            <h3 style="color:var(--primary)">System Overview</h3>
-            <p style="margin:10px 0;">Total Registered Students: <b id="statCount" style="color:var(--primary); font-size:1.5rem;">0</b></p>
-            <canvas id="mainChart" style="max-height: 280px;"></canvas>
-        </div>
+    <div id="listSec" class="hidden">
+        <h3 style="color: white; margin-bottom: 15px;">Student Directory</h3>
+        <input type="text" id="search" placeholder="Search by name..." style="margin-bottom: 15px;" onkeyup="filter()">
+        <div id="studentListContainer">
+            </div>
+    </div>
 
-        <div id="manage" class="card hidden">
-            <h3>Student Directory</h3>
-            <input id="searchBar" placeholder="Search name or matric number..." onkeyup="filterStudents()">
-            <table id="studentList">
-                <thead>
-                    <tr><th>Photo</th><th>Full Name</th><th>Class</th><th>Matric</th><th>Action</th></tr>
-                </thead>
-                <tbody id="studentBody"></tbody>
-            </table>
-        </div>
+    <div id="regSec" class="card hidden">
+        <h3>Register Student</h3>
+        <label style="font-size: 0.8rem;">Full Name (Surname First)</label>
+        <input type="text" id="rName" placeholder="e.g. ADEYEMI Musa">
+        
+        <label style="font-size: 0.8rem; margin-top: 10px; display: block;">Class</label>
+        <select id="rClass">
+            <option>JSS1</option><option>JSS2</option><option>JSS3</option>
+            <option>SS1</option><option>SS2</option><option>SS3</option>
+        </select>
 
-        <div id="create" class="card hidden">
-            <h3>New Student Registration</h3>
-            <label>Student Full Name</label>
-            <input id="regName" placeholder="Surname First">
-            <label>Current Class</label>
-            <select id="regClass">
-                <option>JSS1</option><option>JSS2</option><option>JSS3</option>
-                <option>SS1</option><option>SS2</option><option>SS3</option>
-            </select>
-            <label>Passport (Max 2MB)</label>
-            <input type="file" id="regFile" accept="image/*">
-            <button class="btn-main" style="width:100%; margin-top:15px;" id="regBtn" onclick="handleRegistration()">Register Student</button>
-        </div>
+        <label style="font-size: 0.8rem; margin-top: 10px; display: block;">Passport Image</label>
+        <input type="file" id="rFile" accept="image/*">
+        
+        <button class="btn btn-primary" style="margin-top: 20px;" onclick="register()">Upload & Save</button>
     </div>
 </div>
 
-<div id="profileModal" class="modal hidden">
-    <div class="modal-content">
-        <span class="close-btn" onclick="closeModal()">&times;</span>
-        <div id="profileView"></div>
+<div id="resultModal" class="full-modal hidden">
+    <div class="modal-header">
+        <h3 id="mTitle">Edit Result</h3>
+        <button onclick="closeModal()" style="background:none; border:none; font-size: 1.5rem;">&times;</button>
     </div>
+
+    <div style="margin-bottom: 20px; background: #f0f4f8; padding: 10px; border-radius: 6px;">
+        <label style="font-size: 0.7rem;">SELECT TERM & CLASS</label>
+        <div style="display: flex; gap: 5px;">
+            <select id="mTerm"><option>1st Term</option><option>2nd Term</option><option>3rd Term</option></select>
+            <select id="mClass"><option>JSS1</option><option>JSS2</option><option>JSS3</option></select>
+        </div>
+    </div>
+
+    <div id="subjectInputs">
+        </div>
+
+    <div class="card" style="margin-top: 20px; border: 1px solid #ddd;">
+        <h4>Affective Domain (1-5)</h4>
+        <div class="input-row">
+            <div class="input-group"><label>Punctuality</label><input type="number" id="aPunct"></div>
+            <div class="input-group"><label>Neatness</label><input type="number" id="aNeat"></div>
+        </div>
+        <label style="display:block; margin-top:15px; font-size:0.7rem;">Teacher's Comments</label>
+        <textarea id="aRemark" style="width:100%; height:80px; border-radius:6px; padding:10px; border:1px solid #ccc;"></textarea>
+    </div>
+
+    <button class="btn btn-success" id="saveBtn" onclick="saveResult()">Save Terminal Result</button>
 </div>
+
+<nav class="bottom-tabs">
+    <div class="tab-item active" onclick="nav('dashSec', this)">🏠<br>Home</div>
+    <div class="tab-item" onclick="nav('listSec', this)">👥<br>Profiles</div>
+    <div class="tab-item" onclick="nav('regSec', this)">➕<br>Register</div>
+</nav>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyDyGAAiybGdSQZvsJnzK46fUtCMmcVwhP0",
@@ -120,161 +246,145 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    let allStudents = [];
+    let students = [];
+    let currentId = null;
 
-    window.showSection = (id) => {
-        document.querySelectorAll('.card').forEach(c => c.classList.add('hidden'));
+    // Navigation Logic
+    window.nav = (id, el) => {
+        document.getElementById('dashSec').classList.add('hidden');
+        document.getElementById('listSec').classList.add('hidden');
+        document.getElementById('regSec').classList.add('hidden');
         document.getElementById(id).classList.remove('hidden');
-        if(id === 'manage') loadStudents();
+        
+        document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+        el.classList.add('active');
+
+        if(id === 'listSec') load();
     };
 
-    window.closeModal = () => document.getElementById('profileModal').classList.add('hidden');
+    window.closeModal = () => document.getElementById('resultModal').classList.add('hidden');
 
-    window.handleRegistration = async () => {
-        const name = document.getElementById('regName').value;
-        const sClass = document.getElementById('regClass').value;
-        const file = document.getElementById('regFile').files[0];
-        if(!name || !file) return alert("All fields are required!");
+    // Registration Logic
+    window.register = async () => {
+        const name = document.getElementById('rName').value;
+        const cls = document.getElementById('rClass').value;
+        const file = document.getElementById('rFile').files[0];
+        if(!name || !file) return alert("Fill all fields");
 
-        const btn = document.getElementById('regBtn');
-        btn.innerText = "Uploading..."; btn.disabled = true;
-
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("upload_preset", "cho_students_upload"); 
+        const fd = new FormData();
+        fd.append("file", file);
+        fd.append("upload_preset", "cho_students_upload");
 
         try {
-            const res = await fetch("https://api.cloudinary.com/v1_1/dbl5rshwi/image/upload", { method: "POST", body: formData });
+            const res = await fetch("https://api.cloudinary.com/v1_1/dbl5rshwi/image/upload", { method: "POST", body: fd });
             const data = await res.json();
 
             await addDoc(collection(db, "students"), {
-                name, class: sClass, passport: data.secure_url,
+                name, class: cls, passport: data.secure_url,
                 matric: "CHO-" + Math.floor(1000 + Math.random() * 9000),
-                results: {} 
+                results: {}
             });
-
-            alert("Registration successful!");
-            showSection('manage');
-        } catch (e) { alert("Registration failed."); }
-        finally { btn.innerText = "Register Student"; btn.disabled = false; }
+            alert("Success!");
+            location.reload();
+        } catch(e) { alert("Error"); }
     };
 
-    window.loadStudents = async () => {
+    // Load Students
+    window.load = async () => {
         const snap = await getDocs(collection(db, "students"));
-        allStudents = [];
-        snap.forEach(d => allStudents.push({ id: d.id, ...d.data() }));
-        renderTable(allStudents);
-        document.getElementById('statCount').innerText = allStudents.length;
+        students = [];
+        const container = document.getElementById('studentListContainer');
+        container.innerHTML = "";
+        
+        snap.forEach(d => {
+            const s = { id: d.id, ...d.data() };
+            students.push(s);
+            container.innerHTML += `
+                <div class="student-row" onclick="openResults('${s.id}')">
+                    <img src="${s.passport}" class="passport">
+                    <div class="student-info">
+                        <h4>${s.name}</h4>
+                        <p>${s.class} • ${s.matric}</p>
+                    </div>
+                    <span style="color:var(--primary); font-weight:bold;">Edit ></span>
+                </div>
+            `;
+        });
+        document.getElementById('countVal').innerText = students.length;
     };
 
-    function renderTable(data) {
-        const tbody = document.getElementById('studentBody');
-        tbody.innerHTML = data.map(s => `
-            <tr>
-                <td><img src="${s.passport}" class="passport-thumb"></td>
-                <td style="text-align:left"><b>${s.name}</b></td>
-                <td>${s.class}</td>
-                <td><code>${s.matric}</code></td>
-                <td><button class="btn-main" style="padding:6px 12px; font-size:12px;" onclick="openProfile('${s.id}')">Manage Results</button></td>
-            </tr>`).join('');
-    }
+    window.openResults = (id) => {
+        currentId = id;
+        const s = students.find(x => x.id === id);
+        document.getElementById('mTitle').innerText = s.name;
+        document.getElementById('resultModal').classList.remove('hidden');
 
-    window.openProfile = (id) => {
-        const s = allStudents.find(x => x.id === id);
-        const modal = document.getElementById('profileModal');
-        modal.classList.remove('hidden');
+        // Create Mobile-Friendly Subject List
+        const subjects = ["Mathematics", "English Language", "Basic Science", "Social Studies", "Agric Science", "Civic Education", "ICT", "P.H.E", "Business Studies", "Yoruba"];
+        const box = document.getElementById('subjectInputs');
+        box.innerHTML = "";
 
-        document.getElementById('profileView').innerHTML = `
-            <div style="display:flex; gap:20px; align-items:center; padding-bottom:15px; border-bottom:1px solid #eee;">
-                <img src="${s.passport}" style="width:100px; height:100px; border-radius:8px; object-fit:cover;">
-                <div>
-                    <h2 style="color:var(--primary)">${s.name}</h2>
-                    <p>Matric: ${s.matric} | Class: ${s.class}</p>
-                    <div style="display:flex; gap:5px; margin-top:10px;">
-                        <select id="selClass" style="width:100px"><option>JSS1</option><option>JSS2</option><option>JSS3</option><option>SS1</option><option>SS2</option><option>SS3</option></select>
-                        <select id="selTerm" style="width:120px"><option>1st Term</option><option>2nd Term</option><option>3rd Term</option></select>
-                        <button class="btn-green" style="height:42px;" onclick="loadReportSheet('${id}')">Load Sheet</button>
+        subjects.forEach(sub => {
+            box.innerHTML += `
+                <div class="subject-card">
+                    <h4>${sub}</h4>
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label>C.A (30)</label>
+                            <input type="number" class="ca-in" data-sub="${sub}" placeholder="0-30">
+                        </div>
+                        <div class="input-group">
+                            <label>Exam (70)</label>
+                            <input type="number" class="ex-in" data-sub="${sub}" placeholder="0-70">
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div id="sheetTarget"></div>
-        `;
+            `;
+        });
     };
 
-    window.loadReportSheet = (id) => {
-        const s = allStudents.find(x => x.id === id);
-        const cls = document.getElementById('selClass').value;
-        const trm = document.getElementById('selTerm').value;
-        const res = s.results?.[cls]?.[trm] || {};
+    window.saveResult = async () => {
+        const btn = document.getElementById('saveBtn');
+        btn.innerText = "Saving Data...";
+        btn.disabled = true;
 
-        // Official Subjects from your Card.png
-        const subjects = ["Mathematics", "English Language", "Basic Science", "Social Studies", "Agric Science", "Civic Education", "ICT", "P.H.E", "Business Studies", "Yoruba", "Home Economics", "Cultural & Creative Arts"];
+        const cls = document.getElementById('mClass').value;
+        const trm = document.getElementById('mTerm').value;
+        const resObj = {
+            remark: document.getElementById('aRemark').value,
+            punctuality: document.getElementById('aPunct').value,
+            neatness: document.getElementById('aNeat').value
+        };
 
-        document.getElementById('sheetTarget').innerHTML = `
-            <div class="report-grid">
-                <div>
-                    <table>
-                        <thead><tr><th>SUBJECT</th><th>CA (30)</th><th>EXAM (70)</th><th>TOTAL</th></tr></thead>
-                        <tbody>
-                            ${subjects.map(sub => {
-                                const val = res[sub] || {ca:'', ex:''};
-                                const tot = (Number(val.ca)||0) + (Number(val.ex)||0);
-                                return `<tr>
-                                    <td style="text-align:left"><b>${sub}</b></td>
-                                    <td><input type="number" class="score-input ca-in" data-sub="${sub}" value="${val.ca}"></td>
-                                    <td><input type="number" class="score-input ex-in" data-sub="${sub}" value="${val.ex}"></td>
-                                    <td style="background:#f0f0f0; font-weight:bold;">${tot}</td>
-                                </tr>`;
-                            }).join('')}
-                        </tbody>
-                    </table>
-                </div>
-                <div>
-                    <label>Punctuality (1-5)</label><input type="number" id="afPunct" value="${res.punctuality||''}">
-                    <label>Neatness (1-5)</label><input type="number" id="afNeat" value="${res.neatness||''}">
-                    <label>Teacher Remark</label><textarea id="rmk" style="height:80px">${res.remark||''}</textarea>
-                    
-                    <div class="grading-key">
-                        <b>KEY:</b> 5=EXCELLENT, 4=V.GOOD, 3=GOOD, 2=FAIR, 1=POOR
-                    </div>
-                    
-                    <button class="btn-green" style="width:100%; margin-top:20px; height:60px;" id="svBtn" onclick="saveResult('${id}','${cls}','${trm}')">SAVE REPORT CARD</button>
-                    <button class="btn-red" style="width:100%; margin-top:10px; padding:8px; font-size:12px;" onclick="deleteStudent('${id}')">Delete Student Profile</button>
-                </div>
-            </div>
-        `;
-    };
-
-    window.saveResult = async (id, cls, trm) => {
-        const btn = document.getElementById('svBtn');
-        btn.innerText = "Saving..."; btn.disabled = true;
-
-        const data = { remark: document.getElementById('rmk').value, punctuality: document.getElementById('afPunct').value, neatness: document.getElementById('afNeat').value };
-        document.querySelectorAll('.ca-in').forEach(i => {
-            const sub = i.dataset.sub;
+        document.querySelectorAll('.ca-in').forEach(el => {
+            const sub = el.dataset.sub;
             const ex = document.querySelector(`.ex-in[data-sub="${sub}"]`).value;
-            data[sub] = { ca: i.value, ex: ex };
+            resObj[sub] = { ca: el.value, ex: ex };
         });
 
-        const sRef = doc(db, "students", id);
-        const snap = await getDoc(sRef);
-        const current = snap.data().results || {};
-        if(!current[cls]) current[cls] = {};
-        current[cls][trm] = data;
+        const docRef = doc(db, "students", currentId);
+        const snap = await getDoc(docRef);
+        const results = snap.data().results || {};
+        if(!results[cls]) results[cls] = {};
+        results[cls][trm] = resObj;
 
-        await updateDoc(sRef, { results: current });
-        alert("Saved to Cloud!");
-        closeModal(); loadStudents();
+        await updateDoc(docRef, { results });
+        alert("Saved to Cloud Successfully!");
+        closeModal();
+        btn.innerText = "Save Terminal Result";
+        btn.disabled = false;
     };
 
-    window.deleteStudent = async (id) => {
-        if(confirm("Confirm deletion?")) {
-            await deleteDoc(doc(db, "students", id));
-            closeModal(); loadStudents();
-        }
+    window.filter = () => {
+        const val = document.getElementById('search').value.toLowerCase();
+        const rows = document.querySelectorAll('.student-row');
+        rows.forEach(r => {
+            const txt = r.innerText.toLowerCase();
+            r.style.display = txt.includes(val) ? "flex" : "none";
+        });
     };
 
-    loadStudents();
 </script>
+
 </body>
 </html>
