@@ -31,6 +31,7 @@
         
         .passport { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); }
         .student-info { flex: 1; }
+        .matric-tag { font-size: 0.65rem; color: var(--primary); font-weight: bold; background: #eef2f5; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-top: 2px; }
 
         /* Subject Cards */
         .subject-card { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 12px; border-left: 5px solid var(--primary); position: relative; }
@@ -62,7 +63,7 @@
     </div>
 
     <div id="listSec" class="hidden">
-        <input type="text" id="search" placeholder="Search by name..." onkeyup="filter()">
+        <input type="text" id="search" placeholder="Search by name or Matric..." onkeyup="filter()">
         <div id="studentListContainer" style="margin-top: 15px;"></div>
     </div>
 
@@ -86,6 +87,7 @@
         <input type="text" id="mName">
         <label style="font-size: 0.7rem; margin-top:10px; display:block;">Change Class (Promote)</label>
         <select id="mClass"><option>JSS1</option><option>JSS2</option><option>JSS3</option><option>SS1</option><option>SS2</option><option>SS3</option></select>
+        <p id="mMatricDisplay" style="margin-top: 10px; font-weight: bold; font-size: 0.8rem;"></p>
     </div>
 
     <div id="resultSection">
@@ -162,6 +164,7 @@
         document.getElementById('mTitle').innerText = s.name;
         document.getElementById('mName').value = s.name;
         document.getElementById('mClass').value = s.class;
+        document.getElementById('mMatricDisplay').innerText = "Matric No: " + (s.matric || "N/A");
         document.getElementById('resultModal').classList.remove('hidden');
         document.getElementById('subjectInputs').innerHTML = ""; 
     };
@@ -219,7 +222,11 @@
                 <div class="student-row">
                     <div class="student-main">
                         <img src="${s.passport}" class="passport">
-                        <div class="student-info"><h4>${s.name}</h4><p>${s.class}</p></div>
+                        <div class="student-info">
+                            <h4>${s.name}</h4>
+                            <p>${s.class}</p>
+                            <span class="matric-tag">${s.matric || 'No Matric'}</span>
+                        </div>
                     </div>
                     <div class="student-actions">
                         <div class="action-btn" onclick="openManager('${s.id}')" style="color:var(--primary)">✏️ EDIT / RESULT</div>
@@ -235,12 +242,32 @@
         const c = document.getElementById('rClass').value;
         const f = document.getElementById('rFile').files[0];
         if(!n || !f) return alert("Fill all fields");
-        const fd = new FormData(); fd.append("file", f); fd.append("upload_preset", "cho_students_upload");
-        const res = await fetch("https://api.cloudinary.com/v1_1/dbl5rshwi/image/upload", { method: "POST", body: fd });
-        const data = await res.json();
-        await addDoc(collection(db, "students"), { name: n, class: c, passport: data.secure_url, results: {} });
-        alert("Registered!");
-        nav('listSec', document.querySelectorAll('.tab-item')[1]);
+        
+        const fd = new FormData(); 
+        fd.append("file", f); 
+        fd.append("upload_preset", "cho_students_upload");
+        
+        try {
+            const res = await fetch("https://api.cloudinary.com/v1_1/dbl5rshwi/image/upload", { method: "POST", body: fd });
+            const data = await res.json();
+            
+            // Generate Matric Number: CHO + Year + Random 4 digits
+            const year = new Date().getFullYear().toString().substr(-2);
+            const rand = Math.floor(1000 + Math.random() * 9000);
+            const generatedMatric = `CHO/${year}/${rand}`;
+
+            await addDoc(collection(db, "students"), { 
+                name: n, 
+                class: c, 
+                passport: data.secure_url, 
+                matric: generatedMatric,
+                results: {} 
+            });
+            alert("Registered! Matric No: " + generatedMatric);
+            nav('listSec', document.querySelectorAll('.tab-item')[1]);
+        } catch (e) {
+            alert("Upload failed. Check connection.");
+        }
     };
 
     window.filter = () => {
